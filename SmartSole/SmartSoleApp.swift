@@ -25,8 +25,9 @@ struct SmartSoleApp: App {
 
     var body: some Scene {
         WindowGroup {
-            ContentView()
+            Homepage()
         }
         .modelContainer(sharedModelContainer)
     }
 }
+
