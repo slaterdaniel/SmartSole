@@ -41,7 +41,14 @@ class DeviceScanner:
         }
     }
     
-    func centralManager(_ manager: CBCentralManager, didDiscover foundperipheral: CBPeripheral, advertisementData: [String : Any], rssi RSSI: NSNumber) {
+//    PERIPHERAL DISCOVERY
+    
+    func centralManager(
+        _ manager: CBCentralManager,
+        didDiscover foundperipheral: CBPeripheral,
+        advertisementData: [String : Any],
+        rssi RSSI: NSNumber
+    ) {
         let deviceName = advertisementData[CBAdvertisementDataLocalNameKey] as? String ?? "No Name"
         if !foundDevices.contains(where: { $0.name == deviceName }) {
             print("DEVICE FOUND")
@@ -58,30 +65,53 @@ class DeviceScanner:
         }
     }
     
-    func centralManager(_ manager: CBCentralManager, didConnect peripheral: CBPeripheral) {
+//    PERIPHERAL CONNECTION / DISCONNECTION
+    
+    func centralManager(
+        _ manager: CBCentralManager,
+        didConnect peripheral: CBPeripheral
+    ) {
         if let device = foundDevices.first(where: { $0.id == peripheral.identifier }) {
             connectedDevice = device
             print("Device Connected")
+            device.peripheral.delegate = self
             device.peripheral.discoverServices(nil)
         } else {
             print("Device could not be connected")
         }
     }
 
+    func centralManager(
+        _ central: CBCentralManager,
+        didDisconnectPeripheral peripheral: CBPeripheral,
+        error: (any Error)?
+    ) {
+        print("DEVICE DISCONNECTED")
+    }
+    
+//    PERIPHERAL SERVICES
+    
     func peripheral(
         _ peripheral: CBPeripheral,
         didDiscoverServices error: (any Error)?
     ) {
+        
+//    Testing --> to remove
         guard let services = peripheral.services else {
             print("No Services")
             return
         }
-        
         for service in services {
             print("Service Found:", service, service.uuid)
-            print()
+        }
+//    to remove <-- Testing
+        
+        if peripheral.services!.contains(where: {$0.uuid.uuidString == "25AE1441-05D3-4C5B-8281-93D4E07420CF"}) {
+            print("Testing Service Connected")
         }
     }
+    
+//    FUNCTION CALLS
     
     func startScan() {
         foundDevices.removeAll()
@@ -97,6 +127,10 @@ class DeviceScanner:
     
     func connectDevice(_ device: Device) {
         manager.connect(device.peripheral)
+    }
+    
+    func disconnectDevice(_ device: Device){
+        manager.cancelPeripheralConnection(device.peripheral)
     }
 }
 
@@ -130,7 +164,11 @@ struct AllDeviceScannerHomepage: View {
             List(scanner.foundDevices) { device in
                 Button(action: {
                     print("DEVICE PRESSED: \(device.name) - \(device.id)")
-                    scanner.connectDevice(device)
+                    if device.name == scanner.connectedDevice?.name {
+                        scanner.disconnectDevice(device)
+                    } else {
+                        scanner.connectDevice(device)
+                    }
                 }) {
                     HStack {
                         Text(device.name)
