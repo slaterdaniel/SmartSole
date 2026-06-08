@@ -23,12 +23,8 @@ struct Homepage: View {
                     .frame(maxHeight: 250)
                     .cornerRadius(50)
 
-                NavigationLink(destination: AllDeviceScannerHomepage()) {
-                    Text("Scan Test")
-                        .frame(maxWidth: .infinity)
-                }
-                NavigationLink(destination: AllDeviceScannerHomepage()) {
-                    Text("Insole Data")
+                NavigationLink(destination: DeviceFamilyFinder()) {
+                    Text("Start Analysis")
                         .frame(maxWidth: .infinity)
                 }
             }
@@ -37,7 +33,7 @@ struct Homepage: View {
             .foregroundStyle(.blue.gradient)
             .buttonBorderShape(.roundedRectangle)
             .buttonStyle(.glass)
-            .padding(.horizontal, 40)
+            .padding(.horizontal, 35)
         }
     }
 }

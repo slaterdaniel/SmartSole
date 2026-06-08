@@ -21,10 +21,13 @@ class DeviceScanner:
     @Published var connectedDevice: Device? = nil
     
     private var manager: CBCentralManager!
+    private var targetDeviceNames: [String]? = nil
+
     
-    override init() {
+    init(targetDeviceNames: [String]?) {
         super.init()
         manager = CBCentralManager(delegate: self, queue: nil)
+        self.targetDeviceNames = targetDeviceNames
     }
     
     func centralManagerDidUpdateState(_ central: CBCentralManager) {
@@ -45,23 +48,28 @@ class DeviceScanner:
     
     func centralManager(
         _ manager: CBCentralManager,
-        didDiscover foundperipheral: CBPeripheral,
+        didDiscover foundPeripheral: CBPeripheral,
         advertisementData: [String : Any],
         rssi RSSI: NSNumber
     ) {
         let deviceName = advertisementData[CBAdvertisementDataLocalNameKey] as? String ?? "No Name"
+        
+//        Remove this clause when done with testing
         if !foundDevices.contains(where: { $0.name == deviceName }) {
             print("DEVICE FOUND")
             print("Name:", deviceName)
-            print("UUID:", foundperipheral.identifier)
+            print("UUID:", foundPeripheral.identifier)
             print()
-            foundDevices.append(
-                Device(
-                    name: deviceName,
-                    id: foundperipheral.identifier,
-                    peripheral: foundperipheral
+//       -------------
+            if self.targetDeviceNames?.contains(where: { $0 == deviceName }) ?? true {
+                foundDevices.append(
+                    Device(
+                        name: deviceName,
+                        id: foundPeripheral.identifier,
+                        peripheral: foundPeripheral
+                    )
                 )
-            )
+            }
         }
     }
     
@@ -142,47 +150,58 @@ struct Device: Identifiable {
 
 struct AllDeviceScannerHomepage: View {
 
-    @StateObject private var scanner = DeviceScanner()
+    @StateObject private var scanner = DeviceScanner(targetDeviceNames: nil)
     
     var body: some View {
-        VStack {
-            Text("BLE Devices")
-                .fontWeight(.thin)
-                .font(.largeTitle)
-            Button(action: {
-                scanner.startScan()
-            }) {
-                Text("Start Scan")
+        NavigationStack {
+            
+            VStack {
+                Text("BLE Devices")
                     .fontWeight(.thin)
-                    .font(.title2)
-                    .padding()
-                    .overlay(
-                        RoundedRectangle(cornerRadius: 5)
-                            .stroke()
-                    )
-            }
-            List(scanner.foundDevices) { device in
+                    .font(.largeTitle)
                 Button(action: {
-                    print("DEVICE PRESSED: \(device.name) - \(device.id)")
-                    if device.name == scanner.connectedDevice?.name {
-                        scanner.disconnectDevice(device)
-                    } else {
-                        scanner.connectDevice(device)
-                    }
+                    scanner.startScan()
                 }) {
-                    HStack {
-                        Text(device.name)
-                        Spacer()
-                        Text(device.id.uuidString.prefix(4))
-                            .font(.footnote)
-                            .fontWeight(.ultraLight)
-                    }
-                    .contentShape(Rectangle())
+                    Text("Start Scan")
+                        .fontWeight(.thin)
+                        .font(.title2)
+                        .padding()
+                        .overlay(
+                            RoundedRectangle(cornerRadius: 5)
+                                .stroke()
+                        )
                 }
+                List(scanner.foundDevices) { device in
+                    Button(action: {
+                        print("DEVICE PRESSED: \(device.name) - \(device.id)")
+                        if device.name == scanner.connectedDevice?.name {
+                            scanner.disconnectDevice(device)
+                        } else {
+                            scanner.connectDevice(device)
+                        }
+                    }) {
+                        HStack {
+                            Text(device.name)
+                            Spacer()
+                            Text(device.id.uuidString.prefix(4))
+                                .font(.footnote)
+                                .fontWeight(.ultraLight)
+                        }
+                        .contentShape(Rectangle())
+                    }
+                    .buttonStyle(.glass)
+                }
+                NavigationLink(destination: AnaysisPlaceholder()) {
+                    Text("Start")
+                        .foregroundStyle(.blue.gradient)
+                        .font(.title)
+                        .fontWeight(.thin)
+                        .frame(maxWidth: .infinity)
+                }
+                .padding(.horizontal, 35)
+                .padding(.vertical, 20)
                 .buttonStyle(.glass)
-            }
-            Button("other test button") {
-                print("test button")
+                .buttonBorderShape(.roundedRectangle)
             }
         }
     }
