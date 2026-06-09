@@ -40,6 +40,7 @@ struct DeviceFamilyFinder: View {
                 List(scanner.foundDevices, id: \.id, selection: $selectedDeviceIDs) { device in
                     HStack {
                         Text(device.name)
+                            .foregroundStyle(.blue.gradient)
                         Spacer()
                         Text(device.id.uuidString.prefix(4))
                             .font(.footnote)
