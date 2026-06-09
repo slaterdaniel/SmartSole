@@ -11,7 +11,7 @@ import Combine
 
 struct DeviceFamilyFinder: View {
 
-    @StateObject private var scanner = DeviceScanner(targetDeviceNames: ["Nano33", "SmartSole"])
+    @StateObject var scanner = DeviceScanner(targetDeviceNames: ["Nano33", "SmartSole Right"])
     @State var selectedDeviceIDs = Set<UUID>()
     
     var selectedDevices: [Device] {
@@ -47,12 +47,11 @@ struct DeviceFamilyFinder: View {
                     }
                     .contentShape(Rectangle())
                 }
-//                .toolbar {
-//                    EditButton()
-//                }
-
-                NavigationLink(destination: AnaysisPlaceholder()) {
-                    Text("Start")
+                .toolbar {
+                    EditButton()
+                }
+                NavigationLink(destination: SessionSettings(selectedDevices: selectedDevices)) {
+                    Text("Continue")
                         .foregroundStyle(.blue.gradient)
                         .font(.title)
                         .fontWeight(.thin)
