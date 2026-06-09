@@ -30,19 +30,9 @@
 /* End PBXFileReference section */
 
 /* Begin PBXFileSystemSynchronizedRootGroup section */
-		43CE6AD02FD50F2F009CDF38 /* SmartSole */ = {
+		43CE6AD02FD50F2F009CDF38 /* SmartSoleApp */ = {
 			isa = PBXFileSystemSynchronizedRootGroup;
-			path = SmartSole;
-			sourceTree = "<group>";
-		};
-		43CE6AE02FD50F31009CDF38 /* SmartSoleTests */ = {
-			isa = PBXFileSystemSynchronizedRootGroup;
-			path = SmartSoleTests;
-			sourceTree = "<group>";
-		};
-		43CE6AEA2FD50F31009CDF38 /* SmartSoleUITests */ = {
-			isa = PBXFileSystemSynchronizedRootGroup;
-			path = SmartSoleUITests;
+			path = SmartSoleApp;
 			sourceTree = "<group>";
 		};
 /* End PBXFileSystemSynchronizedRootGroup section */
@@ -75,9 +65,7 @@
 		43CE6AC52FD50F2F009CDF38 = {
 			isa = PBXGroup;
 			children = (
-				43CE6AD02FD50F2F009CDF38 /* SmartSole */,
-				43CE6AE02FD50F31009CDF38 /* SmartSoleTests */,
-				43CE6AEA2FD50F31009CDF38 /* SmartSoleUITests */,
+				43CE6AD02FD50F2F009CDF38 /* SmartSoleApp */,
 				43CE6ACF2FD50F2F009CDF38 /* Products */,
 			);
 			sourceTree = "<group>";
@@ -108,7 +96,7 @@
 			dependencies = (
 			);
 			fileSystemSynchronizedGroups = (
-				43CE6AD02FD50F2F009CDF38 /* SmartSole */,
+				43CE6AD02FD50F2F009CDF38 /* SmartSoleApp */,
 			);
 			name = SmartSole;
 			packageProductDependencies = (
@@ -130,9 +118,6 @@
 			dependencies = (
 				43CE6ADF2FD50F31009CDF38 /* PBXTargetDependency */,
 			);
-			fileSystemSynchronizedGroups = (
-				43CE6AE02FD50F31009CDF38 /* SmartSoleTests */,
-			);
 			name = SmartSoleTests;
 			packageProductDependencies = (
 			);
@@ -152,9 +137,6 @@
 			);
 			dependencies = (
 				43CE6AE92FD50F31009CDF38 /* PBXTargetDependency */,
-			);
-			fileSystemSynchronizedGroups = (
-				43CE6AEA2FD50F31009CDF38 /* SmartSoleUITests */,
 			);
 			name = SmartSoleUITests;
 			packageProductDependencies = (
@@ -186,7 +168,7 @@
 					};
 				};
 			};
-			buildConfigurationList = 43CE6AC92FD50F2F009CDF38 /* Build configuration list for PBXProject "SmartSole" */;
+			buildConfigurationList = 43CE6AC92FD50F2F009CDF38 /* Build configuration list for PBXProject "SmartSoleApp" */;
 			developmentRegion = en;
 			hasScannedForEncodings = 0;
 			knownRegions = (
@@ -539,7 +521,7 @@
 /* End XCBuildConfiguration section */
 
 /* Begin XCConfigurationList section */
-		43CE6AC92FD50F2F009CDF38 /* Build configuration list for PBXProject "SmartSole" */ = {
+		43CE6AC92FD50F2F009CDF38 /* Build configuration list for PBXProject "SmartSoleApp" */ = {
 			isa = XCConfigurationList;
 			buildConfigurations = (
 				43CE6AEF2FD50F31009CDF38 /* Debug */,

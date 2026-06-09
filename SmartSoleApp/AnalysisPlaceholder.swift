@@ -7,7 +7,7 @@
 
 import SwiftUI
 
-struct AnaysisPlaceholder: View {
+struct AnalysisPlaceholder: View {
     var body: some View {
         Text("Placeholder")
             .font(.largeTitle)
@@ -15,5 +15,5 @@ struct AnaysisPlaceholder: View {
 }
 
 #Preview {
-    AnaysisPlaceholder()
+    AnalysisPlaceholder()
 }
