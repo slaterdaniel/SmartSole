@@ -9,10 +9,12 @@ import SwiftUI
 
 struct SessionSettings: View {
     
+    @Environment(\.colorScheme) var colorScheme
+    
     @State var selectedDevices: [Device] // Insole, Arm Sleeve, Leg Sleeve, Chest Strap, etc.
     
-    @State private var selectedShoeType = "" //  Flats, Spikes
-    @State private var selectedRunType = "" //   Sprint, Distance
+    @State private var selectedShoeType = "Spikes" //  Spikes, Flats
+    @State private var selectedRunType = "Sprints" //   Sprints, Distance
     
     private let shoeTypes = ["Spikes", "Flats"]
     private let runTypes = ["Sprints", "Distance"]
@@ -45,21 +47,15 @@ struct SessionSettings: View {
             .buttonStyle(.glass)
             .frame(width: 350, height: 250)
             .scrollContentBackground(.hidden)
-            .background(Color(red: 0.075, green: 0.075, blue: 0.075))
+            .background(
+                self.colorScheme == .dark ?
+                Color(red: 0.075, green: 0.075, blue: 0.075) :
+                Color(red: 0.925, green: 0.925, blue: 0.925)
+            )
             .cornerRadius(12)
             Spacer()
                 .frame(height: 75)
             VStack (spacing: 15) {
-                Text("Shoe Type")
-                    .font(.headline)
-                    .fontWeight(.thin)
-                    .foregroundStyle(.blue.gradient)
-                Picker("Shoe Type", selection: $selectedShoeType) {
-                    ForEach(shoeTypes, id: \.self) { shoeType in
-                        Text(shoeType)
-                    }
-                }
-                Divider()
                 Text("Run Type")
                     .font(.headline)
                     .fontWeight(.thin)
@@ -70,13 +66,23 @@ struct SessionSettings: View {
                     }
                 }
                 Divider()
+                Text("Shoe Type")
+                    .font(.headline)
+                    .fontWeight(.thin)
+                    .foregroundStyle(.blue.gradient)
+                Picker("Shoe Type", selection: $selectedShoeType) {
+                    ForEach(shoeTypes, id: \.self) { shoeType in
+                        Text(shoeType)
+                    }
+                }
+                Divider()
                 Spacer()
                     .frame(height: 35)
             }
             .padding(.horizontal, 75)
             .pickerStyle(.segmented)
             .scaleEffect(1.5)
-            NavigationLink(destination: DataDisplayPage()) {
+            NavigationLink(destination: WaitingForRep()) {
                 Text("Start Rep")
                     .font(.title)
                     .padding()
