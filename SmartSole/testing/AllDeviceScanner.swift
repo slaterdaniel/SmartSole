@@ -191,17 +191,6 @@ struct AllDeviceScannerHomepage: View {
                     }
                     .buttonStyle(.glass)
                 }
-                NavigationLink(destination: AnaysisPlaceholder()) {
-                    Text("Start")
-                        .foregroundStyle(.blue.gradient)
-                        .font(.title)
-                        .fontWeight(.thin)
-                        .frame(maxWidth: .infinity)
-                }
-                .padding(.horizontal, 35)
-                .padding(.vertical, 20)
-                .buttonStyle(.glass)
-                .buttonBorderShape(.roundedRectangle)
             }
         }
     }
