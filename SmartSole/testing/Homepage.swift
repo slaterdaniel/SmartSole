@@ -27,6 +27,10 @@ struct Homepage: View {
                     Text("Start Analysis")
                         .frame(maxWidth: .infinity)
                 }
+                NavigationLink(destination: AllDeviceScannerHomepage()) {
+                    Text("Scan Test")
+                        .frame(maxWidth: .infinity)
+                }
             }
             .fontWeight(.thin)
             .font(.title)
