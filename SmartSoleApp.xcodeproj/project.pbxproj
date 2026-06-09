@@ -30,9 +30,9 @@
 /* End PBXFileReference section */
 
 /* Begin PBXFileSystemSynchronizedRootGroup section */
-		43CE6AD02FD50F2F009CDF38 /* SmartSoleApp */ = {
+		43CE6AD02FD50F2F009CDF38 /* SmartSole */ = {
 			isa = PBXFileSystemSynchronizedRootGroup;
-			path = SmartSoleApp;
+			path = SmartSole;
 			sourceTree = "<group>";
 		};
 /* End PBXFileSystemSynchronizedRootGroup section */
@@ -65,7 +65,7 @@
 		43CE6AC52FD50F2F009CDF38 = {
 			isa = PBXGroup;
 			children = (
-				43CE6AD02FD50F2F009CDF38 /* SmartSoleApp */,
+				43CE6AD02FD50F2F009CDF38 /* SmartSole */,
 				43CE6ACF2FD50F2F009CDF38 /* Products */,
 			);
 			sourceTree = "<group>";
@@ -96,7 +96,7 @@
 			dependencies = (
 			);
 			fileSystemSynchronizedGroups = (
-				43CE6AD02FD50F2F009CDF38 /* SmartSoleApp */,
+				43CE6AD02FD50F2F009CDF38 /* SmartSole */,
 			);
 			name = SmartSole;
 			packageProductDependencies = (
