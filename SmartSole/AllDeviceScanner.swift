@@ -18,7 +18,7 @@ class DeviceScanner:
     @Published var state: CBManagerState = .unknown
     @Published var isScanning: Bool = false
     @Published var foundDevices: [Device] = []
-    @Published var connectedDevice: Device? = nil
+    @Published var connectedDevices: [Device] = []
     
     private var manager: CBCentralManager!
     private var targetDeviceNames: [String]? = nil
@@ -80,7 +80,7 @@ class DeviceScanner:
         didConnect peripheral: CBPeripheral
     ) {
         if let device = foundDevices.first(where: { $0.id == peripheral.identifier }) {
-            connectedDevice = device
+            connectedDevices.append(device)
             print("Device Connected")
             device.peripheral.delegate = self
             device.peripheral.discoverServices(nil)
@@ -112,23 +112,19 @@ class DeviceScanner:
         for service in services {
             print("Service Found:", service, service.uuid)
         }
-//    to remove <-- Testing
-        
-        if peripheral.services!.contains(where: {$0.uuid.uuidString == "25AE1441-05D3-4C5B-8281-93D4E07420CF"}) {
-            print("Testing Service Connected")
-        }
     }
     
 //    FUNCTION CALLS
     
     func startScan() {
+        print("Starting Scan")
         foundDevices.removeAll()
-        connectedDevice = nil
         isScanning = true
         manager.scanForPeripherals(withServices: nil)
     }
     
     func stopScan() {
+        print("Stopping Scan")
         isScanning = false
         manager.stopScan()
     }
@@ -174,7 +170,9 @@ struct AllDeviceScannerHomepage: View {
                 List(scanner.foundDevices) { device in
                     Button(action: {
                         print("DEVICE PRESSED: \(device.name) - \(device.id)")
-                        if device.name == scanner.connectedDevice?.name {
+                        if scanner.connectedDevices.contains(where: {
+                            $0.name == device.name
+                        }) {
                             scanner.disconnectDevice(device)
                         } else {
                             scanner.connectDevice(device)
@@ -187,6 +185,7 @@ struct AllDeviceScannerHomepage: View {
                                 .font(.footnote)
                                 .fontWeight(.ultraLight)
                         }
+                        .padding()
                         .contentShape(Rectangle())
                     }
                     .buttonStyle(.glass)
@@ -196,6 +195,6 @@ struct AllDeviceScannerHomepage: View {
     }
 }
 
-#Preview {
-    AllDeviceScannerHomepage()
-}
+//#Preview {
+//    AllDeviceScannerHomepage()
+//}
