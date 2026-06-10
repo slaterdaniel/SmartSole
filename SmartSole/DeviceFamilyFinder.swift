@@ -10,16 +10,17 @@ import CoreBluetooth
 
 struct DeviceFamilyFinder: View {
 
+    @State private var path = NavigationPath()
+    
     @StateObject var scanner = DeviceScanner(targetDeviceNames: ["Nano33", "SmartSole Right"])
     @State var selectedDeviceIDs = Set<UUID>()
     
-    var selectedDevices: [Device] {
-        scanner.foundDevices.filter { selectedDeviceIDs.contains($0.id) }
-    }
+    
+    var selectedDevices: [Device] { scanner.foundDevices.filter { selectedDeviceIDs.contains($0.id) } }
     
     var body: some View {
-        NavigationStack {
-            
+        
+        NavigationStack (path: $path) {
             VStack {
                 Text("SmartSole BLE Devices")
                     .fontWeight(.thin)
@@ -45,6 +46,7 @@ struct DeviceFamilyFinder: View {
                             .font(.footnote)
                             .fontWeight(.ultraLight)
                     }
+                    .padding()
                     .contentShape(Rectangle())
                 }
                 .toolbar {
@@ -52,20 +54,24 @@ struct DeviceFamilyFinder: View {
                 }
                 NavigationLink(destination: SessionSettings(selectedDevices: selectedDevices)) {
                     Text("Continue")
+                        .padding(.horizontal, 55)
+                        .padding(.vertical, 15)
                         .foregroundStyle(.blue.gradient)
                         .font(.title)
                         .fontWeight(.thin)
-                        .frame(maxWidth: .infinity)
                 }
-                .padding(.horizontal, 35)
-                .padding(.vertical, 20)
+                .frame(maxWidth: .infinity)
                 .buttonStyle(.glass)
-                .buttonBorderShape(.roundedRectangle)
+                .simultaneousGesture(
+                    TapGesture().onEnded {
+                        scanner.stopScan()
+
+                        for device in selectedDevices {
+                            scanner.connectDevice(device)
+                        }
+                    }
+                )
             }
         }
     }
-}
-
-#Preview {
-    AllDeviceScannerHomepage()
 }

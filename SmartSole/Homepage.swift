@@ -42,7 +42,6 @@ struct Homepage: View {
     }
 }
 
-
 #Preview {
     Homepage()
 }

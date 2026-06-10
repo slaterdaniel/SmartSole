@@ -7,12 +7,11 @@
 
 import SwiftUI
 
-
 struct WaitingForRep: View {
     @Environment(\.dismiss) var dismiss
 
     var body: some View {
-        NavigationStack {
+        VStack {
             Spacer()
                 .frame(height: 275)
             Text("Waiting for Rep to Start")

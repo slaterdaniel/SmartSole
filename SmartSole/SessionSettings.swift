@@ -11,7 +11,7 @@ struct SessionSettings: View {
     
     @Environment(\.colorScheme) var colorScheme
     
-    @State var selectedDevices: [Device] // Insole, Arm Sleeve, Leg Sleeve, Chest Strap, etc.
+    let selectedDevices: [Device] // Insole, Arm Sleeve, Leg Sleeve, Chest Strap, etc.
     
     @State private var selectedShoeType = "Spikes" //  Spikes, Flats
     @State private var selectedRunType = "Sprints" //   Sprints, Distance
@@ -20,7 +20,7 @@ struct SessionSettings: View {
     private let runTypes = ["Sprints", "Distance"]
         
     var body: some View {
-        NavigationStack {
+        VStack {
             VStack(spacing: 20) {
                 Text("Session Settings")
                     .font(.largeTitle)
@@ -29,7 +29,7 @@ struct SessionSettings: View {
                     .font(.title2)
                     .fontWeight(.thin)
                     .foregroundStyle(.blue.gradient)
-                }
+            }
             Spacer()
                 .frame(height: 20)
             List(selectedDevices) { device in
@@ -50,7 +50,7 @@ struct SessionSettings: View {
             .background(
                 self.colorScheme == .dark ?
                 Color(red: 0.075, green: 0.075, blue: 0.075) :
-                Color(red: 0.925, green: 0.925, blue: 0.925)
+                    Color(red: 0.925, green: 0.925, blue: 0.925)
             )
             .cornerRadius(12)
             Spacer()
