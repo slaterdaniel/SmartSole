@@ -31,17 +31,21 @@
 // --------
 // Global variables
 // --------
+
+// Data Service
 static BLEService data_service(DATA_SERVICE_UUID);
-static BLEBoolCharacteristic started_charNotify(STARTED_CHAR_UUID, BLENotify, 512);
-static BLEStringCharacteristic angles_charIndicate(ANGLES_CHAR_UUID, BLEIndicate, 512);
-static BLEStringCharacteristic acceleration_charIndicate(ACCELERATION_CHAR_UUID, BLEIndicate, 512);
-static BLEStringCharacteristic force_charIndicate(FORCE_CHAR_UUID, BLEIndicate, 512);
+static BLEByteCharacteristic started_char(STARTED_CHAR_UUID, BLERead | BLENotify);
 
-static BLEService data_service(BATTERY_SERVICE_UUID);
-static BLEFloatCharacteristic batteryLevel_charRead(FORCE_CHAR_UUID, BLERead, 512);
+static BLEStringCharacteristic angles_charNotify(ANGLES_CHAR_UUID, BLENotify, 11);
+static BLEStringCharacteristic acceleration_charNotify(ACCELERATION_CHAR_UUID, BLENotify, 11);
+static BLEStringCharacteristic force_charNotify(FORCE_CHAR_UUID, BLENotify, 100);
 
-static bool g_isCentralConnected = false;
-static std::string g_cmdLine;
+// Battery Service
+static BLEService battery_service(BATTERY_SERVICE_UUID);
+static BLEFloatCharacteristic batteryLevel_charIndicate(FORCE_CHAR_UUID, BLEIndicate);
+
+// Connection Bool
+static bool centralConnected = false;
 
 // --------
 // Application lifecycle: setup & loop
@@ -52,201 +56,75 @@ void setup()
     digitalWrite(LED_BUILTIN, LOW);
 
     Serial.begin(9600);
-    while (!Serial);
-
     if (!BLE.begin())
     {
         stopWithError("BLE.begin() failed");
     }
-    BLE.setLocalName("SmartSole Right");
-    BLE.setAdvertisedService(g_service);
 
+    BLE.setLocalName("SmartSole Right");
+
+    BLE.setAdvertisedService(data_service);
+    data_service.addCharacteristic(started_char); // 0 = idle; 1 = watching for rep, 2 = rep started, 3 = rep ended
+    data_service.addCharacteristic(angles_charNotify)
+    data_service.addCharacteristic(acceleration_charNotify)
+    data_service.addCharacteristic(force_charNotify)
+
+    BLE.setAdvertisedService(battery_service);
+    battery_service.addCharacteristic(batteryLevel_charIndicate)
+
+    // Connection to Central
     BLE.setEventHandler(BLEConnected, [](BLEDevice central)
     {
         g_isCentralConnected = true;
         Serial.println("Event: central connected");
     });
 
+    // Disconnection from Central
     BLE.setEventHandler(BLEDisconnected, [](BLEDevice central)
     {
         g_isCentralConnected = false;
         Serial.println("Event: central disconnected");
     });
 
-    // characteristic for read
-    {
-        g_service.addCharacteristic(g_charRead);
-        g_charRead.writeValue("NANO33 for read");
-        g_charRead.setEventHandler(BLERead, [](BLEDevice central, BLECharacteristic characteristic)
-        {
-            Serial.print("Event: characteristic read, value='");
-            Serial.print(g_charRead.value());
-            Serial.println("'");
-        });
-    }
-
-    // characteristic for write
-    {
-        g_service.addCharacteristic(g_charWrite);
-        g_charWrite.setEventHandler(BLEWritten, [](BLEDevice central, BLECharacteristic characteristic)
-        {
-            Serial.print("Event: characteristic write, value='");
-            Serial.print(g_charWrite.value());
-            Serial.println("'");
-        });
-    }
-
-    // characteristic for indicate
-    {
-        g_service.addCharacteristic(g_charIndicate);
-        g_charIndicate.setEventHandler(BLESubscribed, [](BLEDevice central, BLECharacteristic characteristic)
-        {
-            Serial.println("Event: central subscribed to characteristic");
-        });
-        g_charIndicate.setEventHandler(BLEUnsubscribed, [](BLEDevice central, BLECharacteristic characteristic)
-        {
-            Serial.println("Event: central unsubscribed from characteristic");
-        });
-    }
-
-    BLE.addService(g_service);
     BLE.advertise();
-
     Serial.println("BLE setup done, advertising...");
-    Serial.println("");
-    PrintInfo();
-    PrintHelp();
 }
 
 void loop()
 {
     BLE.poll();
-    if (!Serial.available())
-    {
-        return;
-    }
-
-    char c = Serial.read();
-    if (c != '\r' && c != '\n')
-    {
-        g_cmdLine += c;
-        return;
-    }
-
-    std::string cmdLine;
-    std::swap(g_cmdLine, cmdLine);
-    if (cmdLine.empty())
-    {
-        return; 
-    }
-
-    std::string commandData;
-    if (ParseCommand(cmdLine, CMD_HELP, commandData))
-    {
-        PrintHelp();
-        return;
-    }
-
-    if (ParseCommand(cmdLine, CMD_INFO, commandData))
-    {
-        PrintInfo();
-        return;
-    }
-
-    if (ParseCommand(cmdLine, CMD_SET_READ, commandData))
-    {
-        Serial.print("Setting read characteristic: '");
-        Serial.print(commandData.c_str());
-        Serial.println("'");
-        g_charRead.writeValue(commandData.c_str());
-        return;
-    }
-
-    if (ParseCommand(cmdLine, CMD_SET_INDICATE, commandData))
-    {
-        Serial.print("Setting indicate characteristic: '");
-        Serial.print(commandData.c_str());
-        Serial.println("'");
-        g_charIndicate.writeValue(commandData.c_str());
-        return;
-    }
-
-    Serial.print("ERROR: command not recognized: '");
-    Serial.print(cmdLine.c_str());
-    Serial.println("'");
 }
 
-// --------
-// Helper functions
-// --------
-void errorBlink()
-{
-    for (int i = 0; i < 3; ++i)
-    {
-        digitalWrite(LED_BUILTIN, HIGH);
-        delay(100);
-        digitalWrite(LED_BUILTIN, LOW);
-        delay(100);
-    }
-}
-
-void stopWithError(const char* errorStr)
-{
-    Serial.println("");
-    Serial.print("ERROR: ");
-    Serial.println(errorStr);
-    for (;;)
-    {
-        errorBlink();
-        digitalWrite(LED_BUILTIN, HIGH);
-        delay(1000);
-    }
-}
-
-bool ParseCommand(const std::string& cmdLine, const std::string& commandKeyword, std::string& outputCommandData)
-{
-    size_t commandPosition = cmdLine.find(commandKeyword);
-    if (commandPosition == std::string::npos)
-    {
-        return false;
-    }
-    outputCommandData = cmdLine.substr(commandPosition + commandKeyword.length());
-    return true;
-}
-
-void PrintInfo()
-{
-    Serial.println("-------------------------------");
-    Serial.println("  Service UUID: "SERVICE_UUID);
-    Serial.println(g_isCentralConnected ? "  Central connected" : "  Central not connected");
-    Serial.println("  Characteristics:");
-
-    Serial.print("  Readable: value='");
-    Serial.print(g_charRead.value());
-    Serial.println("' UUID="CHAR_READ_UUID);
-
-    Serial.print("  Writeable: value='");
-    Serial.print(g_charWrite.value());
-    Serial.println("' UUID="CHAR_WRITE_UUID);
-
-    Serial.print("  Indication: value='");
-    Serial.print(g_charIndicate.value());
-    Serial.println("' UUID="CHAR_INDICATE_UUID);
-    Serial.println("-------------------------------");
-}
-
-void PrintHelp()
-{
-    Serial.println("-------------------------------");
-    Serial.println("  Command line interface:");
-    Serial.println("  1. "CMD_HELP" - print this description of command line interface");
-    Serial.println("  2. "CMD_INFO" - print current state of BLE Peripheral");
-    Serial.println("  3. "CMD_SET_READ"<value> - set value to readable characteristic");
-    Serial.println("       Set 'abc def': "CMD_SET_READ"abc def");
-    Serial.println("       Set empty value: "CMD_SET_READ);
-    Serial.println("  4. "CMD_SET_INDICATE"<value> - set value to indication characteristic, and send indication to Central");
-    Serial.println("       Set 'abc def': "CMD_SET_INDICATE"abc def");
-    Serial.println("       Set empty value: "CMD_SET_INDICATE);
-    Serial.println("-------------------------------");
-    Serial.println("Waiting for command line input...");
-}
+    // characteristic for read
+    // {
+    //     g_service.addCharacteristic(g_charRead);
+    //     g_charRead.writeValue("NANO33 for read");
+    //     g_charRead.setEventHandler(BLERead, [](BLEDevice central, BLECharacteristic characteristic)
+    //     {
+    //         Serial.print("Event: characteristic read, value='");
+    //         Serial.print(g_charRead.value());
+    //         Serial.println("'");
+    //     });
+    // }
+    // characteristic for write
+    // {
+    //     g_service.addCharacteristic(g_charWrite);
+    //     g_charWrite.setEventHandler(BLEWritten, [](BLEDevice central, BLECharacteristic characteristic)
+    //     {
+    //         Serial.print("Event: characteristic write, value='");
+    //         Serial.print(g_charWrite.value());
+    //         Serial.println("'");
+    //     });
+    // }
+    // characteristic for indicate
+    // {
+    //     g_service.addCharacteristic(g_charIndicate);
+    //     g_charIndicate.setEventHandler(BLESubscribed, [](BLEDevice central, BLECharacteristic characteristic)
+    //     {
+    //         Serial.println("Event: central subscribed to characteristic");
+    //     });
+    //     g_charIndicate.setEventHandler(BLEUnsubscribed, [](BLEDevice central, BLECharacteristic characteristic)
+    //     {
+    //         Serial.println("Event: central unsubscribed from characteristic");
+    //     });
+    // }
