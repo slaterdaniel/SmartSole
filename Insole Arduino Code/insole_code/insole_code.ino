@@ -1,48 +1,134 @@
-// Basic demo for accelerometer readings from Adafruit MPU6050
+#include <ArduinoBLE.h>
+#include "Arduino_BMI270_BMM150.h"
+#include <string>
 
-#include <Adafruit_MPU6050.h>
-#include <Adafruit_Sensor.h>
-#include <Wire.h>
+// --------
+// Constants
+// --------
+#define DATA_SERVICE_UUID         "A7304340-C9C9-4FD4-B48D-052C4978B83B"
+#define STARTED_CHAR_UUID         "C7304340-C9C9-4FD4-B48D-052C4978B83B"
+#define ANGLES_CHAR_UUID          "C7304341-C9C9-4FD4-B48D-052C4978B83B"
+#define ACCELERATION_CHAR_UUID    "2C1D"
+#define FORCE_CHAR_UUID           "2C07"
 
-Adafruit_MPU6050 mpu;
+#define BATTERY_SERVICE_UUID          "180F"
+#define BATTERY_PERCENTAGE_CHAR_UUID  "2A19"
 
-void setup(void) {
-  Serial.begin(115200);
-  while (!Serial) {
-    delay(10); // will pause Zero, Leonardo, etc until serial console opens
-  }
+// --------
+// Global variables
+// --------
 
-  // Try to initialize!
-  if (!mpu.begin()) {
-    Serial.println("Failed to find MPU6050 chip");
-    while (1) {
-      delay(10);
+// Data Service
+static BLEService data_service(DATA_SERVICE_UUID);
+static BLEByteCharacteristic started_char(STARTED_CHAR_UUID, BLERead | BLENotify);
+
+static BLEStringCharacteristic angles_charNotify(ANGLES_CHAR_UUID, BLENotify, 20);
+static BLEStringCharacteristic acceleration_charNotify(ACCELERATION_CHAR_UUID, BLENotify, 20);
+static BLEStringCharacteristic force_charNotify(FORCE_CHAR_UUID, BLENotify, 100);
+
+// Battery Service
+static BLEService battery_service(BATTERY_SERVICE_UUID);
+static BLEFloatCharacteristic batteryLevel_charIndicate(FORCE_CHAR_UUID, BLEIndicate);
+
+// Connection Bool
+static bool centralConnected = false;
+
+// --------
+// Application lifecycle: setup & loop
+// --------
+void setup()
+{
+    pinMode(LED_BUILTIN, OUTPUT);
+    digitalWrite(LED_BUILTIN, LOW);
+
+    Serial.begin(9600);
+    if (!BLE.begin())
+    {
+        Serial.println("BLE.begin() failed");
     }
-  }
 
-  mpu.setAccelerometerRange(MPU6050_RANGE_16_G);
-  mpu.setGyroRange(MPU6050_RANGE_250_DEG);
-  mpu.setFilterBandwidth(MPU6050_BAND_21_HZ);
-  Serial.println("");
-  delay(100);
+    if (!IMU.begin()) {
+        Serial.println("IMU.begin() failed");
+        while (1);
+    }
+
+    BLE.setLocalName("SmartSole Right");
+
+    BLE.addService(data_service);
+    data_service.addCharacteristic(started_char); // 0 = idle; 1 = watching for rep, 2 = rep started, 3 = rep ended
+    data_service.addCharacteristic(angles_charNotify);
+    data_service.addCharacteristic(acceleration_charNotify);
+    data_service.addCharacteristic(force_charNotify);
+
+    BLE.addService(battery_service);
+    battery_service.addCharacteristic(batteryLevel_charIndicate);
+
+    // Connection to Central
+    BLE.setEventHandler(BLEConnected, [](BLEDevice central)
+    {
+        centralConnected = true;
+        Serial.println("Event: central connected");
+    });
+
+    // Disconnection from Central
+    BLE.setEventHandler(BLEDisconnected, [](BLEDevice central)
+    {
+        centralConnected = false;
+        Serial.println("Event: central disconnected");
+    });
+
+    BLE.advertise();
+    Serial.println("BLE setup done, advertising...");
 }
 
-void loop() {
+void loop()
+{
+    BLE.poll();
 
-  /* Get new sensor events with the readings */
-  sensors_event_t a, g, temp;
-  mpu.getEvent(&a, &g, &temp);
+    float accelX, accelY, accelZ;
+    IMU.readAcceleration(accelX, accelY, accelZ);
 
-  /* Print out the values */
-  Serial.print("AccelX:");
-  Serial.print(a.acceleration.x);
-  Serial.print(",");
-  Serial.print("AccelY:");
-  Serial.print(a.acceleration.y);
-  Serial.print(",");
-  Serial.print("AccelZ:");
-  Serial.print(a.acceleration.z);
-  Serial.println("");
+    String str_accelX = String(accelX);
+    String str_accelY = String(accelY);
+    String str_accelZ = String(accelZ);
 
-  delay(10);
+    String accels = str_accelX + ',' + str_accelY + ',' + str_accelZ;
+
+    Serial.println(accels);
+
+    acceleration_charNotify.writeValue(accels);
 }
+
+    // characteristic for read
+    // {
+    //     g_service.addCharacteristic(g_charRead);
+    //     g_charRead.writeValue("NANO33 for read");
+    //     g_charRead.setEventHandler(BLERead, [](BLEDevice central, BLECharacteristic characteristic)
+    //     {
+    //         Serial.print("Event: characteristic read, value='");
+    //         Serial.print(g_charRead.value());
+    //         Serial.println("'");
+    //     });
+    // }
+    // characteristic for write
+    // {
+    //     g_service.addCharacteristic(g_charWrite);
+    //     g_charWrite.setEventHandler(BLEWritten, [](BLEDevice central, BLECharacteristic characteristic)
+    //     {
+    //         Serial.print("Event: characteristic write, value='");
+    //         Serial.print(g_charWrite.value());
+    //         Serial.println("'");
+    //     });
+    // }
+    // characteristic for indicate
+    // {
+    //     g_service.addCharacteristic(g_charIndicate);
+    //     g_charIndicate.setEventHandler(BLESubscribed, [](BLEDevice central, BLECharacteristic characteristic)
+    //     {
+    //         Serial.println("Event: central subscribed to characteristic");
+    //     });
+    //     g_charIndicate.setEventHandler(BLEUnsubscribed, [](BLEDevice central, BLECharacteristic characteristic)
+    //     {
+    //         Serial.println("Event: central unsubscribed from characteristic");
+    //     });
+    // }
