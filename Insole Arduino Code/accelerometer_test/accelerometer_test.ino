@@ -14,14 +14,9 @@ void setup()
 void loop()
 {
     float accelX, accelY, accelZ;
-
     IMU.readAcceleration(accelX, accelY, accelZ);
 
-    String str_accelX = String(accelX);
-    String str_accelY = String(accelY);
-    String str_accelZ = String(accelZ);
-
-    String accels = str_accelX + ',' + str_accelY + ',' + str_accelZ;
+    String accels = String(str_accelX) + ',' + String(str_accelY) + ',' + String(str_accelZ);
 
     Serial.println(accels);
 }
