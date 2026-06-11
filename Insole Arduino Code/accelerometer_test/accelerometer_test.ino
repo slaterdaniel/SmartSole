@@ -16,7 +16,14 @@ void loop()
     float accelX, accelY, accelZ;
     IMU.readAcceleration(accelX, accelY, accelZ);
 
-    String accels = String(str_accelX) + ',' + String(str_accelY) + ',' + String(str_accelZ);
+    float angleX, angleY, angleZ;
+    angleX = atan2(accelX, sqrt((accelY * accelY) + (accelZ * accelZ))) * 180 / PI;
+    angleY = atan2(accelY, sqrt((accelX * accelX) + (accelZ * accelZ))) * 180 / PI;
+    angleZ = atan2(accelZ, sqrt((accelX * accelX) + (accelY * accelY))) * 180 / PI;
+
+    String accels = String(accelX) + ',' + String(accelY) + ',' + String(accelZ);
+    String angles = String(angleX) + ',' + String(angleY) + ',' + String(angleZ);
 
     Serial.println(accels);
+    Serial.println(angles);
 }
