@@ -5,11 +5,12 @@
 // --------
 // Constants
 // --------
-#define DATA_SERVICE_UUID         "A7304340-C9C9-4FD4-B48D-052C4978B83B"
-#define STARTED_CHAR_UUID         "C7304340-C9C9-4FD4-B48D-052C4978B83B"
-#define ANGLES_CHAR_UUID          "C7304341-C9C9-4FD4-B48D-052C4978B83B"
-#define ACCELERATION_CHAR_UUID    "2C1D"
-#define FORCE_CHAR_UUID           "2C07"
+#define DATA_SERVICE_UUID       "A7304340-C9C9-4FD4-B48D-052C4978B83B"
+#define STARTED_CHAR_UUID       "C7304341-C9C9-4FD4-B48D-052C4978B83B"
+#define ANGLES_CHAR_UUID        "C7304342-C9C9-4FD4-B48D-052C4978B83B"
+#define ANGLE_ACCEL_CHAR_UUID    "C7304343-C9C9-4FD4-B48D-052C4978B83B"
+#define ACCELERATION_CHAR_UUID  "2C1D"
+#define FORCE_CHAR_UUID         "2C07"
 
 #define BATTERY_SERVICE_UUID          "180F"
 #define BATTERY_PERCENTAGE_CHAR_UUID  "2A19"
@@ -23,6 +24,7 @@ static BLEService data_service(DATA_SERVICE_UUID);
 static BLEByteCharacteristic started_char(STARTED_CHAR_UUID, BLERead | BLENotify);
 
 static BLEStringCharacteristic angles_charNotify(ANGLES_CHAR_UUID, BLENotify, 20);
+static BLEStringCharacteristic angle_accel_charNotify(ANGLE_ACCEL_CHAR_UUID, BLENotify, 100);
 static BLEStringCharacteristic acceleration_charNotify(ACCELERATION_CHAR_UUID, BLENotify, 20);
 static BLEStringCharacteristic force_charNotify(FORCE_CHAR_UUID, BLENotify, 100);
 
@@ -57,6 +59,7 @@ void setup()
     BLE.addService(data_service);
     data_service.addCharacteristic(started_char); // 0 = idle; 1 = watching for rep, 2 = rep started, 3 = rep ended
     data_service.addCharacteristic(angles_charNotify);
+    data_service.addCharacteristic(angle_accel_charNotify);
     data_service.addCharacteristic(acceleration_charNotify);
     data_service.addCharacteristic(force_charNotify);
 
@@ -85,12 +88,33 @@ void loop()
 {
     BLE.poll();
 
+    // accelerations
     float accelX, accelY, accelZ;
     IMU.readAcceleration(accelX, accelY, accelZ);
-    String accels = String(str_accelX) + ',' + String(str_accelY) + ',' + String(str_accelZ);
 
+    String accels = String(accelX) + ',' + String(accelY) + ',' + String(accelZ);
     Serial.println(accels);
     acceleration_charNotify.writeValue(accels);
+
+    // angles
+    float angleX, angleY, angleZ;
+    angleX = atan2(accelX, sqrt((accelY * accelY) + (accelZ * accelZ))) * 180 / PI;
+    angleY = atan2(accelY, sqrt((accelX * accelX) + (accelZ * accelZ))) * 180 / PI;
+    angleZ = atan2(accelZ, sqrt((accelX * accelX) + (accelY * accelY))) * 180 / PI;
+
+    String angles = String(angleX) + ',' + String(angleY) + ',' + String(angleZ);
+    angles_charNotify.writeValue(angles);
+    Serial.println(angles);
+
+
+    // angle velocities
+    float angleVelX, angleVelY, angleVelZ;
+    IMU.readGyroscope(angleVelX, angleVelY, angleVelZ);
+
+    String angleAccels = String(angleVelX) + ',' + String(angleVelY) + ',' + String(angleVelZ);
+    angle_accel_charNotify.writeValue(angleAccels);
+    Serial.println(angleAccels);
+    Serial.println()
 }
 
     // characteristic for read
