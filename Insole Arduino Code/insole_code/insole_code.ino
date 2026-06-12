@@ -2,26 +2,24 @@
 #include "Arduino_BMI270_BMM150.h"
 #include <string>
 
-// --------
-// Constants
+// UUIDs
 // --------
 #define DATA_SERVICE_UUID       "A7304340-C9C9-4FD4-B48D-052C4978B83B"
 #define STARTED_CHAR_UUID       "C7304341-C9C9-4FD4-B48D-052C4978B83B"
 #define ANGLES_CHAR_UUID        "C7304342-C9C9-4FD4-B48D-052C4978B83B"
-#define ANGLE_ACCEL_CHAR_UUID    "C7304343-C9C9-4FD4-B48D-052C4978B83B"
+#define ANGLE_ACCEL_CHAR_UUID   "C7304343-C9C9-4FD4-B48D-052C4978B83B"
 #define ACCELERATION_CHAR_UUID  "2C1D"
 #define FORCE_CHAR_UUID         "2C07"
 
 #define BATTERY_SERVICE_UUID          "180F"
 #define BATTERY_PERCENTAGE_CHAR_UUID  "2A19"
 
-// --------
-// Global variables
-// --------
+// Services and Characteristics
+// ----------------------------
 
 // Data Service
 static BLEService data_service(DATA_SERVICE_UUID);
-static BLEByteCharacteristic started_char(STARTED_CHAR_UUID, BLERead | BLENotify);
+static BLEByteCharacteristic started_char(STARTED_CHAR_UUID, BLEWrite | BLENotify);
 
 static BLEStringCharacteristic angles_charNotify(ANGLES_CHAR_UUID, BLENotify, 20);
 static BLEStringCharacteristic angle_accel_charNotify(ANGLE_ACCEL_CHAR_UUID, BLENotify, 100);
@@ -35,9 +33,6 @@ static BLEFloatCharacteristic batteryLevel_charIndicate(FORCE_CHAR_UUID, BLEIndi
 // Connection Bool
 static bool centralConnected = false;
 
-// --------
-// Application lifecycle: setup & loop
-// --------
 void setup()
 {
     pinMode(LED_BUILTIN, OUTPUT);
@@ -82,6 +77,26 @@ void setup()
 
     BLE.advertise();
     Serial.println("BLE setup done, advertising...");
+    
+    // find when the rep starts
+    float pattern_start = millis();
+    while (1) {
+        BLE.poll();
+        if (started_char.value()) {
+            // listen for force distribution
+            // BREAK when start sequence is found:
+            // - front foot fully down (2sec)
+            // - back foot on toe (2sec)
+            
+            if () { // sequence found
+                if (millis() - pattern_start <= 2000) { // 2000 = 2 seconds
+                    break; // if pattern found and time > 2sec -> start loop()
+                }
+                continue; // if pattern found but time < 2sec -> keep polling
+            } 
+            pattern_start = millis(); // if pattern not found -> reset time
+        }
+    }
 }
 
 void loop()
@@ -106,7 +121,6 @@ void loop()
     angles_charNotify.writeValue(angles);
     Serial.println(angles);
 
-
     // angle velocities
     float angleVelX, angleVelY, angleVelZ;
     IMU.readGyroscope(angleVelX, angleVelY, angleVelZ);
@@ -114,6 +128,7 @@ void loop()
     String angleAccels = String(angleVelX) + ',' + String(angleVelY) + ',' + String(angleVelZ);
     angle_accel_charNotify.writeValue(angleAccels);
     Serial.println(angleAccels);
+
     Serial.println()
 }
 
