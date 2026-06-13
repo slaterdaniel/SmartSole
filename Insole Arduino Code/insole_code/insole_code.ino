@@ -19,11 +19,11 @@
 
 // Data Service
 static BLEService data_service(DATA_SERVICE_UUID);
-static BLEByteCharacteristic started_char(STARTED_CHAR_UUID, BLEWrite | BLENotify);
+static BLEByteCharacteristic started_char(STARTED_CHAR_UUID, BLEWrite);
 
-static BLEStringCharacteristic angles_charNotify(ANGLES_CHAR_UUID, BLENotify, 20);
+static BLEStringCharacteristic angles_charNotify(ANGLES_CHAR_UUID, BLENotify, 100);
 static BLEStringCharacteristic angle_accel_charNotify(ANGLE_ACCEL_CHAR_UUID, BLENotify, 100);
-static BLEStringCharacteristic acceleration_charNotify(ACCELERATION_CHAR_UUID, BLENotify, 20);
+static BLEStringCharacteristic acceleration_charNotify(ACCELERATION_CHAR_UUID, BLENotify, 100);
 static BLEStringCharacteristic force_charNotify(FORCE_CHAR_UUID, BLENotify, 100);
 
 // Battery Service
@@ -137,6 +137,12 @@ void loop() {
     String angleAccels = String(angleVelX) + ',' + String(angleVelY) + ',' + String(angleVelZ);
     angle_accel_charNotify.writeValue(angleAccels);
     Serial.println(angleAccels);
+
+    // Force 
+
+
+
+    //
 
     Serial.println();
 }
