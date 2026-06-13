@@ -28,20 +28,19 @@ static BLEStringCharacteristic force_charNotify(FORCE_CHAR_UUID, BLENotify, 100)
 
 // Battery Service
 static BLEService battery_service(BATTERY_SERVICE_UUID);
-static BLEFloatCharacteristic batteryLevel_charIndicate(FORCE_CHAR_UUID, BLEIndicate);
+static BLEFloatCharacteristic batteryLevel_charIndicate(BATTERY_PERCENTAGE_CHAR_UUID, BLEIndicate);
 
 // Connection Bool
 static bool centralConnected = false;
 
-void setup()
-{
-    pinMode(LED_BUILTIN, OUTPUT);
-    digitalWrite(LED_BUILTIN, LOW);
+bool test = 0;
 
+void setup() {
     Serial.begin(9600);
     if (!BLE.begin())
     {
         Serial.println("BLE.begin() failed");
+        while (1);
     }
 
     if (!IMU.begin()) {
@@ -51,15 +50,17 @@ void setup()
 
     BLE.setLocalName("SmartSole Right");
 
-    BLE.addService(data_service);
+    // Data Service
     data_service.addCharacteristic(started_char); // 0 = idle; 1 = watching for rep, 2 = rep started, 3 = rep ended
     data_service.addCharacteristic(angles_charNotify);
     data_service.addCharacteristic(angle_accel_charNotify);
     data_service.addCharacteristic(acceleration_charNotify);
     data_service.addCharacteristic(force_charNotify);
+    BLE.addService(data_service);
 
-    BLE.addService(battery_service);
+    // Battery Service
     battery_service.addCharacteristic(batteryLevel_charIndicate);
+    BLE.addService(battery_service);
 
     // Connection to Central
     BLE.setEventHandler(BLEConnected, [](BLEDevice central)
@@ -82,13 +83,22 @@ void setup()
     float pattern_start = millis();
     while (1) {
         BLE.poll();
+        if (test) {
+            force_charNotify.writeValue("1");
+            test = false;
+        }
+        else {
+            force_charNotify.writeValue("0");
+            test = true;
+        }
+
         if (started_char.value()) {
             // listen for force distribution
             // BREAK when start sequence is found:
             // - front foot fully down (2sec)
             // - back foot on toe (2sec)
             
-            if () { // sequence found
+            if (0) {
                 if (millis() - pattern_start <= 2000) { // 2000 = 2 seconds
                     break; // if pattern found and time > 2sec -> start loop()
                 }
@@ -99,8 +109,7 @@ void setup()
     }
 }
 
-void loop()
-{
+void loop() {
     BLE.poll();
 
     // accelerations
@@ -129,7 +138,7 @@ void loop()
     angle_accel_charNotify.writeValue(angleAccels);
     Serial.println(angleAccels);
 
-    Serial.println()
+    Serial.println();
 }
 
     // characteristic for read
