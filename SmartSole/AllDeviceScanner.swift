@@ -9,7 +9,7 @@ import SwiftUI
 import CoreBluetooth
 import Combine
 
-class DeviceScanner:
+class BLEManager:
         NSObject,
         CBCentralManagerDelegate,
         ObservableObject,
@@ -103,6 +103,9 @@ class DeviceScanner:
         _ peripheral: CBPeripheral,
         didDiscoverServices error: (any Error)?
     ) {
+        if let error = error {
+            print("Service Discovery Error:", error)
+        }
         
 //    Testing --> to remove
         guard let services = peripheral.services else {
@@ -111,6 +114,76 @@ class DeviceScanner:
         }
         for service in services {
             print("Service Found:", service, service.uuid)
+            peripheral.discoverCharacteristics(nil, for: service)
+        }
+    }
+    
+    func peripheral(
+        _ peripheral: CBPeripheral,
+        didDiscoverCharacteristicsFor service: CBService,
+        error: (any Error)?
+    ) {
+        if let error = error {
+            print("Char Discover Error:", error)
+        }
+
+        guard let characteristics = service.characteristics else {
+            print("no characteristics");
+            return
+        }
+        
+        print("Found Characteristics for:", service.uuid)
+        print("count:", characteristics.count)
+        print("Characteristics:")
+        
+        for char in characteristics {
+            peripheral.setNotifyValue(true, for: char)
+            print("-", char)
+        }
+        print()
+    }
+    
+    func peripheral(
+        _ peripheral: CBPeripheral,
+        didUpdateNotificationStateFor characteristic: CBCharacteristic,
+        error: (any Error)?
+    ) {
+        if let error = error {
+            print("Notification Error:", error)
+        }
+        
+        print("Recieving Notifications from:", characteristic)
+    }
+    
+    func peripheral(
+        _ peripheral: CBPeripheral,
+        didUpdateValueFor characteristic: CBCharacteristic,
+        error: (any Error)?
+    ) {
+        if let error = error {
+            print("Value Update Error:", error)
+            return
+        }
+        
+        switch characteristic.uuid.uuidString.prefix(8) {
+            
+        case "C7304341": // Started
+            handleStarted(characteristic.value)
+            
+        case "C7304342": // Angles
+            handleAngles(characteristic.value)
+            
+        case "C7304343": // Angle Accel
+            handleAngleAccels(characteristic.value)
+            
+        case "2C1D":     // Accel
+            handleAccel(characteristic.value)
+            
+        case "2C07":     // Force
+            handleForce(characteristic.value)
+            
+        default:
+            print("CHARACTERISTIC UUID MISSING")
         }
     }
     
@@ -136,6 +209,28 @@ class DeviceScanner:
     func disconnectDevice(_ device: Device){
         manager.cancelPeripheralConnection(device.peripheral)
     }
+    
+    // HANDLE CHARACTERISTIC UPDATES
+    
+    private func handleStarted(_ data: Data?) {
+        print("Handling: STARTED")
+    }
+    
+    private func handleAngles(_ data: Data?) {
+        print("Handling: ANGLES")
+    }
+    
+    private func handleAngleAccels(_ data: Data?) {
+        print("Handling: ANGLE ACCELS")
+    }
+    
+    private func handleAccel(_ data: Data?) {
+        print("Handling: ACCEL")
+    }
+    
+    private func handleForce(_ data: Data?) {
+        print("Handling: FORCE")
+    }
 }
 
 struct Device: Identifiable {
@@ -146,7 +241,7 @@ struct Device: Identifiable {
 
 struct AllDeviceScannerHomepage: View {
 
-    @StateObject private var scanner = DeviceScanner(targetDeviceNames: nil)
+    @StateObject private var bleManager = BLEManager(targetDeviceNames: nil)
     
     var body: some View {
         NavigationStack {
@@ -156,7 +251,7 @@ struct AllDeviceScannerHomepage: View {
                     .fontWeight(.thin)
                     .font(.largeTitle)
                 Button(action: {
-                    scanner.startScan()
+                    bleManager.startScan()
                 }) {
                     Text("Start Scan")
                         .fontWeight(.thin)
@@ -167,15 +262,15 @@ struct AllDeviceScannerHomepage: View {
                                 .stroke()
                         )
                 }
-                List(scanner.foundDevices) { device in
+                List(bleManager.foundDevices) { device in
                     Button(action: {
                         print("DEVICE PRESSED: \(device.name) - \(device.id)")
-                        if scanner.connectedDevices.contains(where: {
+                        if bleManager.connectedDevices.contains(where: {
                             $0.name == device.name
                         }) {
-                            scanner.disconnectDevice(device)
+                            bleManager.disconnectDevice(device)
                         } else {
-                            scanner.connectDevice(device)
+                            bleManager.connectDevice(device)
                         }
                     }) {
                         HStack {
@@ -194,7 +289,3 @@ struct AllDeviceScannerHomepage: View {
         }
     }
 }
-
-//#Preview {
-//    AllDeviceScannerHomepage()
-//}
