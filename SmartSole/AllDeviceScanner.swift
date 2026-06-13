@@ -167,9 +167,6 @@ class BLEManager:
         
         switch characteristic.uuid.uuidString.prefix(8) {
             
-        case "C7304341": // Started
-            handleStarted(characteristic.value)
-            
         case "C7304342": // Angles
             handleAngles(characteristic.value)
             
@@ -211,10 +208,6 @@ class BLEManager:
     }
     
     // HANDLE CHARACTERISTIC UPDATES
-    
-    private func handleStarted(_ data: Data?) {
-        print("Handling: STARTED")
-    }
     
     private func handleAngles(_ data: Data?) {
         print("Handling: ANGLES")
