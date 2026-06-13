@@ -6,9 +6,12 @@
 //
 
 import SwiftUI
+import CoreBluetooth
 
 struct WaitingForRep: View {
     @Environment(\.dismiss) var dismiss
+
+    @StateObject var bleManager: BLEManager
 
     var body: some View {
         VStack {
@@ -21,7 +24,7 @@ struct WaitingForRep: View {
             Spacer()
                 .frame(height: 50)
             VStack (spacing: 20) {
-                HStack{
+                HStack {
                     Text("Leading Foot")
                     Text("Down")
                         .underline()

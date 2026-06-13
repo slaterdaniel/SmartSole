@@ -12,11 +12,11 @@ struct DeviceFamilyFinder: View {
 
     @State private var path = NavigationPath()
     
-    @StateObject var scanner = DeviceScanner(targetDeviceNames: ["Nano33", "SmartSole Right"])
+    @StateObject var bleManager = BLEManager(targetDeviceNames: ["Nano33", "SmartSole Right"])
     @State var selectedDeviceIDs = Set<UUID>()
     
     
-    var selectedDevices: [Device] { scanner.foundDevices.filter { selectedDeviceIDs.contains($0.id) } }
+    var selectedDevices: [Device] { bleManager.foundDevices.filter { selectedDeviceIDs.contains($0.id) } }
     
     var body: some View {
         
@@ -26,7 +26,7 @@ struct DeviceFamilyFinder: View {
                     .fontWeight(.thin)
                     .font(.largeTitle)
                 Button(action: {
-                    scanner.startScan()
+                    bleManager.startScan()
                 }) {
                     Text("Start Scan")
                         .fontWeight(.thin)
@@ -37,7 +37,7 @@ struct DeviceFamilyFinder: View {
                                 .stroke()
                         )
                 }
-                List(scanner.foundDevices, id: \.id, selection: $selectedDeviceIDs) { device in
+                List(bleManager.foundDevices, id: \.id, selection: $selectedDeviceIDs) { device in
                     HStack {
                         Text(device.name)
                             .foregroundStyle(.blue.gradient)
@@ -52,7 +52,7 @@ struct DeviceFamilyFinder: View {
                 .toolbar {
                     EditButton()
                 }
-                NavigationLink(destination: SessionSettings(selectedDevices: selectedDevices)) {
+                NavigationLink(destination: SessionSettings(bleManager: bleManager, selectedDevices: selectedDevices)) {
                     Text("Continue")
                         .padding(.horizontal, 55)
                         .padding(.vertical, 15)
@@ -64,10 +64,10 @@ struct DeviceFamilyFinder: View {
                 .buttonStyle(.glass)
                 .simultaneousGesture(
                     TapGesture().onEnded {
-                        scanner.stopScan()
+                        bleManager.stopScan()
 
                         for device in selectedDevices {
-                            scanner.connectDevice(device)
+                            bleManager.connectDevice(device)
                         }
                     }
                 )

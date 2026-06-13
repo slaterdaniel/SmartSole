@@ -11,6 +11,8 @@ struct SessionSettings: View {
     
     @Environment(\.colorScheme) var colorScheme
     
+    @StateObject var bleManager: BLEManager
+    
     let selectedDevices: [Device] // Insole, Arm Sleeve, Leg Sleeve, Chest Strap, etc.
     
     @State private var selectedShoeType = "Spikes" //  Spikes, Flats
@@ -82,7 +84,7 @@ struct SessionSettings: View {
             .padding(.horizontal, 75)
             .pickerStyle(.segmented)
             .scaleEffect(1.5)
-            NavigationLink(destination: WaitingForRep()) {
+            NavigationLink(destination: WaitingForRep(bleManager: bleManager)) {
                 Text("Start Rep")
                     .font(.title)
                     .padding()
