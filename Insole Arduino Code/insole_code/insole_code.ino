@@ -6,10 +6,7 @@
 // --------
 #define DATA_SERVICE_UUID       "A7304340-C9C9-4FD4-B48D-052C4978B83B"
 #define STARTED_CHAR_UUID       "C7304341-C9C9-4FD4-B48D-052C4978B83B"
-#define ANGLES_CHAR_UUID        "C7304342-C9C9-4FD4-B48D-052C4978B83B"
-#define ANGLE_ACCEL_CHAR_UUID   "C7304343-C9C9-4FD4-B48D-052C4978B83B"
-#define ACCELERATION_CHAR_UUID  "2C1D"
-#define FORCE_CHAR_UUID         "2C07"
+#define RUN_DATA_UUID           "C7304342-C9C9-4FD4-B48D-052C4978B83B"
 
 #define BATTERY_SERVICE_UUID          "180F"
 #define BATTERY_PERCENTAGE_CHAR_UUID  "2A19"
@@ -20,11 +17,7 @@
 // Data Service
 static BLEService data_service(DATA_SERVICE_UUID);
 static BLEByteCharacteristic started_char(STARTED_CHAR_UUID, BLEWrite);
-
-static BLEStringCharacteristic angles_charNotify(ANGLES_CHAR_UUID, BLENotify, 100);
-static BLEStringCharacteristic angle_accel_charNotify(ANGLE_ACCEL_CHAR_UUID, BLENotify, 100);
-static BLEStringCharacteristic acceleration_charNotify(ACCELERATION_CHAR_UUID, BLENotify, 100);
-static BLEStringCharacteristic force_charNotify(FORCE_CHAR_UUID, BLENotify, 100);
+static BLEStringCharacteristic run_data_char(RUN_DATA_UUID, BLENotify, 100);
 
 // Battery Service
 static BLEService battery_service(BATTERY_SERVICE_UUID);
@@ -37,8 +30,7 @@ bool test = 0;
 
 void setup() {
     Serial.begin(9600);
-    if (!BLE.begin())
-    {
+    if (!BLE.begin()) {
         Serial.println("BLE.begin() failed");
         while (1);
     }
@@ -51,11 +43,8 @@ void setup() {
     BLE.setLocalName("SmartSole Right");
 
     // Data Service
-    data_service.addCharacteristic(started_char); // 0 = idle; 1 = watching for rep, 2 = rep started, 3 = rep ended
-    data_service.addCharacteristic(angles_charNotify);
-    data_service.addCharacteristic(angle_accel_charNotify);
-    data_service.addCharacteristic(acceleration_charNotify);
-    data_service.addCharacteristic(force_charNotify);
+    data_service.addCharacteristic(started_char);
+    data_service.addCharacteristic(run_data_char);
     BLE.addService(data_service);
 
     // Battery Service
@@ -80,33 +69,36 @@ void setup() {
     Serial.println("BLE setup done, advertising...");
     
     // find when the rep starts
-    float pattern_start = millis();
-    while (1) {
-        BLE.poll();
-        if (test) {
-            force_charNotify.writeValue("1");
-            test = false;
-        }
-        else {
-            force_charNotify.writeValue("0");
-            test = true;
-        }
+    // float pattern_start = millis();
+    // while (1) {
+    //     BLE.poll();
 
-        if (started_char.value()) {
-            // listen for force distribution
-            // BREAK when start sequence is found:
-            // - front foot fully down (2sec)
-            // - back foot on toe (2sec)
+    //     // testing
+    //     // if (test) {
+    //     //     force_charNotify.writeValue("1");
+    //     //     test = false;
+    //     // }
+    //     // else {
+    //     //     force_charNotify.writeValue("0");
+    //     //     test = true;
+    //     // }
+    //     //
+
+    //     if (started_char.value()) {
+    //         // listen for force distribution
+    //         // BREAK when start sequence is found:
+    //         // - front foot fully down (2sec)
+    //         // - back foot on toe (2sec)
             
-            if (0) {
-                if (millis() - pattern_start <= 2000) { // 2000 = 2 seconds
-                    break; // if pattern found and time > 2sec -> start loop()
-                }
-                continue; // if pattern found but time < 2sec -> keep polling
-            } 
-            pattern_start = millis(); // if pattern not found -> reset time
-        }
-    }
+    //         if (0) {
+    //             if (millis() - pattern_start <= 2000) { // 2000 = 2 seconds
+    //                 break; // if pattern found and time > 2sec -> start loop()
+    //             }
+    //             continue; // if pattern found but time < 2sec -> keep polling
+    //         } 
+    //         pattern_start = millis(); // if pattern not found -> reset time
+    //     }
+    // }
 }
 
 void loop() {
@@ -118,7 +110,6 @@ void loop() {
 
     String accels = String(accelX) + ',' + String(accelY) + ',' + String(accelZ);
     Serial.println(accels);
-    acceleration_charNotify.writeValue(accels);
 
     // angles
     float angleX, angleY, angleZ;
@@ -127,15 +118,13 @@ void loop() {
     angleZ = atan2(accelZ, sqrt((accelX * accelX) + (accelY * accelY))) * 180 / PI;
 
     String angles = String(angleX) + ',' + String(angleY) + ',' + String(angleZ);
-    angles_charNotify.writeValue(angles);
     Serial.println(angles);
 
-    // angle velocities
+    // angle acceleration
     float angleVelX, angleVelY, angleVelZ;
     IMU.readGyroscope(angleVelX, angleVelY, angleVelZ);
 
     String angleAccels = String(angleVelX) + ',' + String(angleVelY) + ',' + String(angleVelZ);
-    angle_accel_charNotify.writeValue(angleAccels);
     Serial.println(angleAccels);
 
     // Force 
@@ -143,7 +132,9 @@ void loop() {
 
 
     //
-
+    
+    String final_vals = accels + ';' + angles + ';' + angleAccels;
+    run_data_char.writeValue(final_vals);
     Serial.println();
 }
 

@@ -19,6 +19,9 @@ class BLEManager:
     @Published var isScanning: Bool = false
     @Published var foundDevices: [Device] = []
     @Published var connectedDevices: [Device] = []
+    @Published var allData: runData = runData(accels: "Connect Device",
+                                              angles: "Connect Device",
+                                              angleAccels: "Connect Device")
     
     private var manager: CBCentralManager!
     private var targetDeviceNames: [String]? = nil
@@ -164,23 +167,8 @@ class BLEManager:
             print("Value Update Error:", error)
             return
         }
-        
-        switch characteristic.uuid.uuidString.prefix(8) {
-            
-        case "C7304342": // Angles
-            handleAngles(characteristic.value)
-            
-        case "C7304343": // Angle Accel
-            handleAngleAccels(characteristic.value)
-            
-        case "2C1D":     // Accel
-            handleAccel(characteristic.value)
-            
-        case "2C07":     // Force
-            handleForce(characteristic.value)
-            
-        default:
-            print("CHARACTERISTIC UUID MISSING")
+        if characteristic.uuid.uuidString.prefix(8) == "C7304342" {
+            handleData(characteristic.value)
         }
     }
     
@@ -208,21 +196,10 @@ class BLEManager:
     }
     
     // HANDLE CHARACTERISTIC UPDATES
-    
-    private func handleAngles(_ data: Data?) {
-        print("Handling: ANGLES")
-    }
-    
-    private func handleAngleAccels(_ data: Data?) {
-        print("Handling: ANGLE ACCELS")
-    }
-    
-    private func handleAccel(_ data: Data?) {
-        print("Handling: ACCEL")
-    }
-    
-    private func handleForce(_ data: Data?) {
-        print("Handling: FORCE")
+    private func handleData(_ data: Data?) {
+        let values = String(bytes: data!, encoding: .utf8)!.split(separator: ";")
+        print("Incoming Data:", values)
+        self.allData = runData(accels: String(values[0]), angles: String(values[1]), angleAccels: String(values[2]))
     }
 }
 
@@ -230,6 +207,12 @@ struct Device: Identifiable {
     let name: String
     let id: UUID
     let peripheral: CBPeripheral
+}
+
+struct runData {
+    let accels: String
+    let angles: String
+    let angleAccels: String
 }
 
 struct AllDeviceScannerHomepage: View {
