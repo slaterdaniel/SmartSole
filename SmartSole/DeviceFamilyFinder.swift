@@ -12,7 +12,7 @@ struct DeviceFamilyFinder: View {
 
     @State private var path = NavigationPath()
     
-    @StateObject var bleManager = BLEManager(targetDeviceNames: ["Nano33", "SmartSole Right"])
+    @StateObject public var bleManager = BLEManager(targetDeviceNames: ["Nano33", "SmartSole Right"])
     @State var selectedDeviceIDs = Set<UUID>()
     
     
@@ -52,7 +52,8 @@ struct DeviceFamilyFinder: View {
                 .toolbar {
                     EditButton()
                 }
-                NavigationLink(destination: SessionSettings(bleManager: bleManager, selectedDevices: selectedDevices)) {
+                NavigationLink(destination: SessionSettings(selectedDevices: selectedDevices)    .environmentObject(bleManager)
+                ) {
                     Text("Continue")
                         .padding(.horizontal, 55)
                         .padding(.vertical, 15)

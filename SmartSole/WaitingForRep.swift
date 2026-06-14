@@ -11,12 +11,26 @@ import CoreBluetooth
 struct WaitingForRep: View {
     @Environment(\.dismiss) var dismiss
 
-    @StateObject var bleManager: BLEManager
+    @EnvironmentObject var bleManager: BLEManager
 
     var body: some View {
         VStack {
+            Section {
+                HStack {
+                    Text("Accels:")
+                    Text(bleManager.allData.accels)
+                }
+                HStack {
+                    Text("Angles:")
+                    Text(bleManager.allData.angles)
+                }
+                HStack {
+                    Text("Angle Accels:")
+                    Text(bleManager.allData.angleAccels)
+                }
+            }
             Spacer()
-                .frame(height: 275)
+                .frame(height: 200) // 275
             Text("Waiting for Rep to Start")
                 .font(.title)
                 .fontWeight(.bold)
