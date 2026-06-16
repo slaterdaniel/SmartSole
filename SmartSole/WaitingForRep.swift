@@ -7,30 +7,62 @@
 
 import SwiftUI
 import CoreBluetooth
+import RealityKit
 
 struct WaitingForRep: View {
     @Environment(\.dismiss) var dismiss
 
     @EnvironmentObject var bleManager: BLEManager
+    
+    @State var startingOrientation: simd_quatf = simd_quatf()
+    
+    func printTree(_ entity: Entity, depth: Int = 0) {
+        let indent = String(repeating: "  ", count: depth)
+        print("\(indent)\(entity.name)")
 
+        for child in entity.children {
+            printTree(child, depth: depth + 1)
+        }
+    }
+    
     var body: some View {
         VStack {
+            RealityView { content in
+                do {
+                    let shoe = try await Entity(named: "DistanceShoe")
+                    var t = shoe.transform
+//                    let radians: Float = 45 * .pi / 180.0
+//                    t.rotation = simd_quatf(angle: radians, axis: [1, 0, 0])
+                    t.scale = [0.4, 0.4, 0.4]
+                    shoe.transform = t
+                    shoe.position = [0, 0, 0]
+                    startingOrientation = shoe.orientation
+                    printTree(shoe)
+                    content.add(shoe)
+                } catch {
+                    print("Failed to load SHOE model:", error)
+                }
+            } update: { content in
+                if let shoe = content.entities.first {
+                    shoe.orientation = bleManager.currentData.angles * startingOrientation
+                }
+            }
             Section {
                 HStack {
                     Text("Accels:")
-                    Text(bleManager.allData.accels)
+                    Text(bleManager.currentData.accels)
                 }
                 HStack {
                     Text("Angles:")
-                    Text(bleManager.allData.angles)
+//                    Text(bleManager.currentData.angles)
                 }
                 HStack {
                     Text("Angle Accels:")
-                    Text(bleManager.allData.angleAccels)
+                    Text(bleManager.currentData.angleAccels)
                 }
             }
-            Spacer()
-                .frame(height: 200) // 275
+//            Spacer()
+//                .frame(height: 200) // 275
             Text("Waiting for Rep to Start")
                 .font(.title)
                 .fontWeight(.bold)
