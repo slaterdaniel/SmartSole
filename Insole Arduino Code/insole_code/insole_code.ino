@@ -1,6 +1,9 @@
 #include <ArduinoBLE.h>
 #include "Arduino_BMI270_BMM150.h"
+#include <MadgwickAHRS.h>
 #include <string>
+
+Madgwick filter;
 
 // UUIDs
 // --------
@@ -26,10 +29,14 @@ static BLEFloatCharacteristic batteryLevel_charIndicate(BATTERY_PERCENTAGE_CHAR_
 // Connection Bool
 static bool centralConnected = false;
 
+static uint32_t count = 0;
+static uint32_t start = millis();
+
 bool test = 0;
 
 void setup() {
     Serial.begin(9600);
+    filter.begin(45);
     if (!BLE.begin()) {
         Serial.println("BLE.begin() failed");
         while (1);
@@ -111,21 +118,29 @@ void loop() {
     String accels = String(accelX) + ',' + String(accelY) + ',' + String(accelZ);
     Serial.println(accels);
 
-    // angles
-    float angleX, angleY, angleZ;
-    angleX = atan2(accelX, sqrt((accelY * accelY) + (accelZ * accelZ))) * 180 / PI;
-    angleY = atan2(accelY, sqrt((accelX * accelX) + (accelZ * accelZ))) * 180 / PI;
-    angleZ = atan2(accelZ, sqrt((accelX * accelX) + (accelY * accelY))) * 180 / PI;
-
-    String angles = String(angleX) + ',' + String(angleY) + ',' + String(angleZ);
-    Serial.println(angles);
-
     // angle acceleration
     float angleVelX, angleVelY, angleVelZ;
     IMU.readGyroscope(angleVelX, angleVelY, angleVelZ);
 
     String angleAccels = String(angleVelX) + ',' + String(angleVelY) + ',' + String(angleVelZ);
     Serial.println(angleAccels);
+
+    // angles
+    float MagX, MagY, MagZ;
+    IMU.readMagneticField(MagX, MagY, MagZ);
+
+    filter.update(
+        angleVelX, angleVelY, angleVelZ,
+        accelX, accelY, accelZ,
+        MagX, MagY, MagZ
+    );
+
+    float yaw = filter.getYaw();
+    float roll = filter.getRoll();
+    float pitch = filter.getPitch();
+
+    String angles = String(yaw) + ',' + String(roll) + ',' + String(pitch);
+    Serial.println(angles);
 
     // Force 
 
@@ -136,6 +151,14 @@ void loop() {
     String final_vals = accels + ';' + angles + ';' + angleAccels;
     run_data_char.writeValue(final_vals);
     Serial.println();
+
+    // TEST LOOP SPEED
+    // count++;
+    // if (millis() - start >= 1000) {
+    //     Serial.println(count);
+    //     count = 0;
+    //     start = millis();
+    // }
 }
 
     // characteristic for read
