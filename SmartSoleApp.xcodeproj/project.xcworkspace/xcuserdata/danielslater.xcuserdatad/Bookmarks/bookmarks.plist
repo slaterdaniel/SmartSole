@@ -57,13 +57,13 @@
 					<key>EndingColumnNumber</key>
 					<string>0</string>
 					<key>EndingLineNumber</key>
-					<string>218</string>
+					<string>235</string>
 					<key>StartingColumnNumber</key>
 					<string>0</string>
 					<key>StartingLineNumber</key>
-					<string>217</string>
+					<string>234</string>
 					<key>Timestamp</key>
-					<string>803244271.531381</string>
+					<string>803510395.8473409</string>
 				</dict>
 				<key>rebasable-url</key>
 				<dict>
@@ -79,16 +79,16 @@
 			<key>text-context</key>
 			<dict>
 				<key>focused</key>
-				<string>        self.allData.append(self.currentData)
+				<string>
 </string>
 				<key>leading</key>
-				<string>        self.currentData = runData(accels: String(values[0]), angles: orientation, angleAccels: String(values[2]))
-        
+				<string>
+struct AllDeviceScannerHomepage: View {
 </string>
 				<key>trailing</key>
-				<string>    }
-}
-
+				<string>    @StateObject private var bleManager = BLEManager(targetDeviceNames: nil)
+    
+    var body: some View {
 </string>
 			</dict>
 			<key>type</key>
