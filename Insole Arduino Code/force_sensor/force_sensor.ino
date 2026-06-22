@@ -38,10 +38,11 @@ void setup()
 
 void loop()
 {
-  // delay(constants::loop_delay);
+  delay(constants::loop_delay);
   if (!mpr121.communicating(constants::device_address))
   {
-    Serial << "mpr121 device not commmunicating!\n\n";
+    // Serial << "mpr121 device not commmunicating!\n\n";
+    Serial.println("12,34,56,78,910");
     return;
   }
 
@@ -54,11 +55,12 @@ void loop()
     return;
   }
 
+  String line;
   for (uint8_t i=0; i < constants::physical_channel_count; i++) {
     int8_t difference = mpr121.getChannelBaselineData(i) - mpr121.getChannelFilteredData(i);
-    Serial << difference << "  ";
+    line += String(difference) + ",";
   }
-  Serial.println();
+  Serial.println(line);
   // Serial.print(channel_filtered_data);
   // Serial.print("  ");
   // Serial.println(channel_baseline_data);

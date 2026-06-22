@@ -19,7 +19,7 @@ TwoWire * wire_ptr = &Wire;
 const MPR121::DeviceAddress device_address = MPR121::ADDRESS_5A;
 const bool fast_mode = true;
 
-const size_t loop_delay = 100;
+const size_t loop_delay = 16;
 
 const uint8_t channel = 0;
 
@@ -36,5 +36,5 @@ const uint8_t charge_discharge_current = 63;
 const MPR121::ChargeDischargeTime charge_discharge_time = MPR121::CHARGE_DISCHARGE_TIME_HALF_US;
 const MPR121::FirstFilterIterations first_filter_iterations = MPR121::FIRST_FILTER_ITERATIONS_34;
 const MPR121::SecondFilterIterations second_filter_iterations = MPR121::SECOND_FILTER_ITERATIONS_10;
-const MPR121::SamplePeriod sample_period = MPR121::SAMPLE_PERIOD_1MS;
+const MPR121::SamplePeriod sample_period = MPR121::SAMPLE_PERIOD_8MS;
 }
