@@ -12,13 +12,13 @@
 					<key>EndingColumnNumber</key>
 					<string>0</string>
 					<key>EndingLineNumber</key>
-					<string>23</string>
+					<string>24</string>
 					<key>StartingColumnNumber</key>
 					<string>0</string>
 					<key>StartingLineNumber</key>
-					<string>22</string>
+					<string>23</string>
 					<key>Timestamp</key>
-					<string>803230857.499146</string>
+					<string>804014636.8230669</string>
 				</dict>
 				<key>rebasable-url</key>
 				<dict>
@@ -57,13 +57,13 @@
 					<key>EndingColumnNumber</key>
 					<string>0</string>
 					<key>EndingLineNumber</key>
-					<string>235</string>
+					<string>262</string>
 					<key>StartingColumnNumber</key>
 					<string>0</string>
 					<key>StartingLineNumber</key>
-					<string>234</string>
+					<string>261</string>
 					<key>Timestamp</key>
-					<string>803510395.8473409</string>
+					<string>804027543.400288</string>
 				</dict>
 				<key>rebasable-url</key>
 				<dict>
@@ -100,15 +100,15 @@ struct AllDeviceScannerHomepage: View {
 				<key>location-parameters</key>
 				<dict>
 					<key>EndingColumnNumber</key>
-					<string>0</string>
+					<string>5</string>
 					<key>EndingLineNumber</key>
-					<string>30</string>
+					<string>25</string>
 					<key>StartingColumnNumber</key>
-					<string>0</string>
+					<string>5</string>
 					<key>StartingLineNumber</key>
-					<string>29</string>
+					<string>25</string>
 					<key>Timestamp</key>
-					<string>803243424.5496531</string>
+					<string>804049662.3422149</string>
 				</dict>
 				<key>rebasable-url</key>
 				<dict>
@@ -124,16 +124,15 @@ struct AllDeviceScannerHomepage: View {
 			<key>text-context</key>
 			<dict>
 				<key>focused</key>
-				<string>            RealityView { content in
-</string>
+				<string></string>
 				<key>leading</key>
-				<string>    var body: some View {
-        VStack {
-</string>
+				<string>            printTree(child, depth: depth + 1)
+        }
+    }</string>
 				<key>trailing</key>
-				<string>                do {
-                    let shoe = try await Entity(named: "DistanceShoe")
-                    var t = shoe.transform
+				<string>
+    
+    var body: some View {
 </string>
 			</dict>
 			<key>type</key>

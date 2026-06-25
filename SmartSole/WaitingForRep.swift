@@ -31,34 +31,17 @@ struct WaitingForRep: View {
                 do {
                     let shoe = try await Entity(named: "DistanceShoe")
                     var t = shoe.transform
-//                    let radians: Float = 45 * .pi / 180.0
-//                    t.rotation = simd_quatf(angle: radians, axis: [1, 0, 0])
                     t.scale = [0.4, 0.4, 0.4]
                     shoe.transform = t
                     shoe.position = [0, 0, 0]
-                    startingOrientation = shoe.orientation
-                    printTree(shoe)
                     content.add(shoe)
-                } catch {
+                }
+                catch {
                     print("Failed to load SHOE model:", error)
                 }
             } update: { content in
                 if let shoe = content.entities.first {
-                    shoe.orientation = bleManager.currentData.angles * startingOrientation
-                }
-            }
-            Section {
-                HStack {
-                    Text("Accels:")
-                    Text(bleManager.currentData.accels)
-                }
-                HStack {
-                    Text("Angles:")
-//                    Text(bleManager.currentData.angles)
-                }
-                HStack {
-                    Text("Angle Accels:")
-                    Text(bleManager.currentData.angleAccels)
+                    shoe.orientation = bleManager.currentData.angles
                 }
             }
 //            Spacer()

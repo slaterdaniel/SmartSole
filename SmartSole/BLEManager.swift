@@ -9,6 +9,7 @@ import SwiftUI
 import CoreBluetooth
 import Combine
 import RealityKit
+import Spatial
 
 class BLEManager:
         NSObject,
@@ -198,23 +199,49 @@ class BLEManager:
     }
     
     // HANDLE CHARACTERISTIC UPDATES
+//    private func handleData(_ data: Data?) {
+//        let values = String(bytes: data!, encoding: .utf8)!.split(separator: ";")
+//        print("Incoming Data:", values)
+//        
+//        let float_angles = values[1].split(separator: ",")
+//        let yawRad = Float(float_angles[0])! * .pi / 180
+//        let rollRad = Float(float_angles[1])! * .pi / 180
+//        let pitchRad = -Float(float_angles[2])! * .pi / 180
+//        
+//        let qy = simd_quatf(angle: pitchRad, axis: [1, 0, 0])
+//        let qz = simd_quatf(angle: yawRad, axis: [0, 1, 0])
+//        let qx = simd_quatf(angle: rollRad, axis: [0, 0, 1])
+//
+//        let orientation = qz * qy * qx
+//        
+//        self.currentData = runData(accels: String(values[0]), angles: orientation, angleAccels: String(values[2]))
+//        
+//        self.allData.append(self.currentData)
+//    }
     private func handleData(_ data: Data?) {
         let values = String(bytes: data!, encoding: .utf8)!.split(separator: ";")
-        print("Incoming Data:", values)
+//        print("Incoming Data:", values)
         
-        let float_angles = values[1].split(separator: ",")
-        let yawRad = Float(float_angles[0])! * .pi / 180
-        let rollRad = Float(float_angles[1])! * .pi / 180
-        let pitchRad = -Float(float_angles[2])! * .pi / 180
+        let str_angles = values[1].split(separator: ",")
         
-        let qy = simd_quatf(angle: pitchRad, axis: [1, 0, 0])
-        let qz = simd_quatf(angle: yawRad, axis: [0, 1, 0])
-        let qx = simd_quatf(angle: rollRad, axis: [0, 0, 1])
+        let q0 = Float(str_angles[0])!
+        let q1 = Float(str_angles[1])!
+        let q2 = Float(str_angles[2])!
+        let q3 = Float(str_angles[3])!
 
-        let orientation = qz * qy * qx
+        let imu_orientation = simd_quatf(ix: q1, iy: q2, iz: q3, r: q0)
         
+        // Convert to Euler angles for cleaning
+        let raw_rotation = Rotation3D(imu_orientation)
+        var euler = raw_rotation.eulerAngles(order: .xyz)
+        euler.angles.x = -euler.angles.x
+        // euler.angles.z = 0
+
+        // Convert back to quaternion
+        let orientation = simd_quatf(Rotation3D(eulerAngles: euler))
+        
+        // Update with new values
         self.currentData = runData(accels: String(values[0]), angles: orientation, angleAccels: String(values[2]))
-        
         self.allData.append(self.currentData)
     }
 }
