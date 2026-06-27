@@ -1,9 +1,13 @@
 #include <ArduinoBLE.h>
 #include "Arduino_BMI270_BMM150.h"
 #include <MadgwickAHRS.h>
-#include <string>
+// #include <Arduino.h>
+#include <MPR121.h>
+// #include <Streaming.h>
+#include "Constants.h"
 
 Madgwick filter;
+MPR121 mpr121;
 
 // UUIDs
 // --------
@@ -32,11 +36,12 @@ static bool centralConnected = false;
 static uint32_t count = 0;
 static uint32_t start = millis();
 
-bool test = 0;
+float accelX, accelY, accelZ, angleVelX, angleVelY, angleVelZ, magX, magY, magZ;
+String current_vals;
 
 void setup() {
-    Serial.begin(9600);
-    filter.begin(45);
+    Serial.begin(constants::baud);
+    filter.begin(55);
     if (!BLE.begin()) {
         Serial.println("BLE.begin() failed");
         while (1);
@@ -74,123 +79,134 @@ void setup() {
 
     BLE.advertise();
     Serial.println("BLE setup done, advertising...");
+
+    mpr121.setupSingleDevice(*constants::wire_ptr,
+    constants::device_address,
+    constants::fast_mode);
+
+    mpr121.setAllChannelsThresholds(constants::touch_threshold,
+        constants::release_threshold);
+    mpr121.setDebounce(constants::device_address,
+        constants::touch_debounce,
+        constants::release_debounce);
+    mpr121.setBaselineTracking(constants::device_address,
+        constants::baseline_tracking);
+    mpr121.setChargeDischargeCurrent(constants::device_address,
+        constants::charge_discharge_current);
+    mpr121.setChargeDischargeTime(constants::device_address,
+        constants::charge_discharge_time);
+    mpr121.setFirstFilterIterations(constants::device_address,
+        constants::first_filter_iterations);
+    mpr121.setSecondFilterIterations(constants::device_address,
+        constants::second_filter_iterations);
+    mpr121.setSamplePeriod(constants::device_address,
+        constants::sample_period);
+
+    mpr121.startAllChannels(constants::proximity_mode);
+
+    Serial.println("MPR121 setup done.");
     
     // find when the rep starts
-    // float pattern_start = millis();
-    // while (1) {
-    //     BLE.poll();
+    float pattern_start;    
+    bool pattern_active = false;
 
-    //     // testing
-    //     // if (test) {
-    //     //     force_charNotify.writeValue("1");
-    //     //     test = false;
-    //     // }
-    //     // else {
-    //     //     force_charNotify.writeValue("0");
-    //     //     test = true;
-    //     // }
-    //     //
+    while (1) {
+        BLE.poll();
+        if (centralConnected) {
+            // listen for force distribution
+            // BREAK when start sequence is found:
+            // - front foot fully down (2sec)
+            // - back foot on toe (2sec)
 
-    //     if (started_char.value()) {
-    //         // listen for force distribution
-    //         // BREAK when start sequence is found:
-    //         // - front foot fully down (2sec)
-    //         // - back foot on toe (2sec)
-            
-    //         if (0) {
-    //             if (millis() - pattern_start <= 2000) { // 2000 = 2 seconds
-    //                 break; // if pattern found and time > 2sec -> start loop()
-    //             }
-    //             continue; // if pattern found but time < 2sec -> keep polling
-    //         } 
-    //         pattern_start = millis(); // if pattern not found -> reset time
-    //     }
-    // }
+            // delay(constants::loop_delay);
+
+            // String forces;
+            int8_t forces_list[constants::physical_channel_count];
+            for (uint8_t i=0; i < constants::physical_channel_count; i++) {
+                int8_t difference = mpr121.getChannelBaselineData(i) - mpr121.getChannelFilteredData(i);
+                // forces += String(difference) + ',';
+                forces_list[i] = difference;
+                Serial.print(forces_list[i]);
+                Serial.print("  ");
+            }
+            Serial.println();      
+            if ( // if pattern is recognized
+                forces_list[0]  < -constants::touch_threshold && // heel off the ground
+                forces_list[1]  < -constants::touch_threshold &&
+                forces_list[2]  < -constants::touch_threshold &&
+                forces_list[3]  < -constants::touch_threshold && 
+
+                forces_list[8]  >  constants::touch_threshold && // toe on the ground
+                forces_list[9]  >  constants::touch_threshold &&
+                forces_list[10] >  constants::touch_threshold &&
+                forces_list[11] >  constants::touch_threshold
+            ) {
+                if (!pattern_active) { // if pattern just started -> mark starting time
+                    pattern_active = true;
+                    pattern_start = millis();
+                }
+                else if (millis() - pattern_start >= 2000) { // 2000 = 2 seconds
+                    break; // if pattern found and time > 2sec -> start loop()
+                    // Serial.println("BREAKING");
+                }
+            }
+            else { // if pattern is not recognized -> reset
+                pattern_active = false;
+            }
+        }
+    }  
 }
 
 void loop() {
     BLE.poll();
 
     // accelerations
-    float accelX, accelY, accelZ;
     IMU.readAcceleration(accelX, accelY, accelZ);
 
     String accels = String(accelX) + ',' + String(accelY) + ',' + String(accelZ);
-    Serial.println(accels);
 
     // angle acceleration
-    float angleVelX, angleVelY, angleVelZ;
     IMU.readGyroscope(angleVelX, angleVelY, angleVelZ);
 
-    String angleAccels = String(angleVelX) + ',' + String(angleVelY) + ',' + String(angleVelZ);
-    Serial.println(angleAccels);
+    String angleVelos = String(angleVelX) + ',' + String(angleVelY) + ',' + String(angleVelZ);
 
     // angles
-    float MagX, MagY, MagZ;
-    IMU.readMagneticField(MagX, MagY, MagZ);
+    // IMU.readMagneticField(magX, magY, magZ);
 
-    filter.update(
+    filter.updateIMU(
         angleVelX, angleVelY, angleVelZ,
-        accelX, accelY, accelZ,
-        MagX, MagY, MagZ
+        accelX, accelY, accelZ//,
+        // magX, magY, magZ
     );
 
-    float yaw = filter.getYaw();
-    float roll = filter.getRoll();
-    float pitch = filter.getPitch();
-
-    String angles = String(yaw) + ',' + String(roll) + ',' + String(pitch);
-    Serial.println(angles);
+    String angles = String(filter.getQ0()) + ',' + String(filter.getQ1()) + ',' + String(filter.getQ2()) + ',' + String(filter.getQ3());
 
     // Force 
+    int16_t touch_status = mpr121.getTouchStatus(constants::device_address);
+    if (mpr121.overCurrentDetected(touch_status))
+    {
+        Serial.println("Over current detected!\n\n");
+        mpr121.startChannels(constants::physical_channel_count,
+        constants::proximity_mode);
+        return;
+    }
 
-
-
-    //
+    String forces;
+    for (uint8_t i=0; i < constants::physical_channel_count; i++) {
+        int8_t difference = mpr121.getChannelBaselineData(i) - mpr121.getChannelFilteredData(i);
+        forces += String(difference) + ",";
+    }
+    Serial.println(forces);
+    // 
     
-    String final_vals = accels + ';' + angles + ';' + angleAccels;
-    run_data_char.writeValue(final_vals);
-    Serial.println();
+    current_vals = accels + ';' + angles + ';' + angleVelos + ';' + forces[:-1];
+    run_data_char.writeValue(current_vals);
 
     // TEST LOOP SPEED
-    // count++;
-    // if (millis() - start >= 1000) {
-    //     Serial.println(count);
-    //     count = 0;
-    //     start = millis();
-    // }
+    count++;
+    if (millis() - start >= 1000) {
+        Serial.println(count);
+        count = 0;
+        start = millis();
+    }
 }
-
-    // characteristic for read
-    // {
-    //     g_service.addCharacteristic(g_charRead);
-    //     g_charRead.writeValue("NANO33 for read");
-    //     g_charRead.setEventHandler(BLERead, [](BLEDevice central, BLECharacteristic characteristic)
-    //     {
-    //         Serial.print("Event: characteristic read, value='");
-    //         Serial.print(g_charRead.value());
-    //         Serial.println("'");
-    //     });
-    // }
-    // characteristic for write
-    // {
-    //     g_service.addCharacteristic(g_charWrite);
-    //     g_charWrite.setEventHandler(BLEWritten, [](BLEDevice central, BLECharacteristic characteristic)
-    //     {
-    //         Serial.print("Event: characteristic write, value='");
-    //         Serial.print(g_charWrite.value());
-    //         Serial.println("'");
-    //     });
-    // }
-    // characteristic for indicate
-    // {
-    //     g_service.addCharacteristic(g_charIndicate);
-    //     g_charIndicate.setEventHandler(BLESubscribed, [](BLEDevice central, BLECharacteristic characteristic)
-    //     {
-    //         Serial.println("Event: central subscribed to characteristic");
-    //     });
-    //     g_charIndicate.setEventHandler(BLEUnsubscribed, [](BLEDevice central, BLECharacteristic characteristic)
-    //     {
-    //         Serial.println("Event: central unsubscribed from characteristic");
-    //     });
-    // }
