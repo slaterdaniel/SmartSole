@@ -21,8 +21,8 @@ class BLEManager:
     @Published var isScanning: Bool = false
     @Published var foundDevices: [Device] = []
     @Published var connectedDevices: [Device] = []
-    @Published var allData: [runData] = []
-    @Published var currentData: runData = runData(accels: "Connect Device",
+    @Published var allData: [RunData] = []
+    @Published var currentData: RunData = RunData(accels: "Connect Device",
                                               angles: simd_quatf(),
                                               angleAccels: "Connect Device")
     
@@ -199,31 +199,10 @@ class BLEManager:
     }
     
     // HANDLE CHARACTERISTIC UPDATES
-//    private func handleData(_ data: Data?) {
-//        let values = String(bytes: data!, encoding: .utf8)!.split(separator: ";")
-//        print("Incoming Data:", values)
-//        
-//        let float_angles = values[1].split(separator: ",")
-//        let yawRad = Float(float_angles[0])! * .pi / 180
-//        let rollRad = Float(float_angles[1])! * .pi / 180
-//        let pitchRad = -Float(float_angles[2])! * .pi / 180
-//        
-//        let qy = simd_quatf(angle: pitchRad, axis: [1, 0, 0])
-//        let qz = simd_quatf(angle: yawRad, axis: [0, 1, 0])
-//        let qx = simd_quatf(angle: rollRad, axis: [0, 0, 1])
-//
-//        let orientation = qz * qy * qx
-//        
-//        self.currentData = runData(accels: String(values[0]), angles: orientation, angleAccels: String(values[2]))
-//        
-//        self.allData.append(self.currentData)
-//    }
     private func handleData(_ data: Data?) {
         let values = String(bytes: data!, encoding: .utf8)!.split(separator: ";")
-//        print("Incoming Data:", values)
         
         let str_angles = values[1].split(separator: ",")
-        
         let q0 = Float(str_angles[0])!
         let q1 = Float(str_angles[1])!
         let q2 = Float(str_angles[2])!
@@ -241,7 +220,7 @@ class BLEManager:
         let orientation = simd_quatf(Rotation3D(eulerAngles: euler))
         
         // Update with new values
-        self.currentData = runData(accels: String(values[0]), angles: orientation, angleAccels: String(values[2]))
+        self.currentData = RunData(accels: String(values[0]), angles: orientation, angleAccels: String(values[2]))
         self.allData.append(self.currentData)
     }
 }
@@ -252,7 +231,7 @@ struct Device: Identifiable {
     let peripheral: CBPeripheral
 }
 
-struct runData {
+struct RunData {
     let accels: String
     let angles: simd_quatf
     let angleAccels: String
