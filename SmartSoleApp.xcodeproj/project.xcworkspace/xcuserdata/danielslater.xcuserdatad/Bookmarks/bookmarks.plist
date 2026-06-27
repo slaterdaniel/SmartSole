@@ -34,14 +34,14 @@
 			<key>text-context</key>
 			<dict>
 				<key>focused</key>
-				<string>    @Published var allData: [runData] = []
+				<string>    @Published var allData: [RunData] = []
 </string>
 				<key>leading</key>
 				<string>    @Published var foundDevices: [Device] = []
     @Published var connectedDevices: [Device] = []
 </string>
 				<key>trailing</key>
-				<string>    @Published var currentData: runData = runData(accels: "Connect Device",
+				<string>    @Published var currentData: RunData = RunData(accels: "Connect Device",
                                               angles: simd_quatf(),
                                               angleAccels: "Connect Device")
 </string>
@@ -57,13 +57,13 @@
 					<key>EndingColumnNumber</key>
 					<string>0</string>
 					<key>EndingLineNumber</key>
-					<string>262</string>
+					<string>241</string>
 					<key>StartingColumnNumber</key>
 					<string>0</string>
 					<key>StartingLineNumber</key>
-					<string>261</string>
+					<string>240</string>
 					<key>Timestamp</key>
-					<string>804027543.400288</string>
+					<string>804050072.935874</string>
 				</dict>
 				<key>rebasable-url</key>
 				<dict>
