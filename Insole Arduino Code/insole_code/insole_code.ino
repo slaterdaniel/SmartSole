@@ -41,7 +41,7 @@ String current_vals;
 
 void setup() {
     Serial.begin(constants::baud);
-    filter.begin(55);
+    filter.begin(30);
     if (!BLE.begin()) {
         Serial.println("BLE.begin() failed");
         while (1);
@@ -182,24 +182,15 @@ void loop() {
     String angles = String(filter.getQ0()) + ',' + String(filter.getQ1()) + ',' + String(filter.getQ2()) + ',' + String(filter.getQ3());
 
     // Force 
-    int16_t touch_status = mpr121.getTouchStatus(constants::device_address);
-    if (mpr121.overCurrentDetected(touch_status))
-    {
-        Serial.println("Over current detected!\n\n");
-        mpr121.startChannels(constants::physical_channel_count,
-        constants::proximity_mode);
-        return;
-    }
-
     String forces;
     for (uint8_t i=0; i < constants::physical_channel_count; i++) {
         int8_t difference = mpr121.getChannelBaselineData(i) - mpr121.getChannelFilteredData(i);
         forces += String(difference) + ",";
     }
     Serial.println(forces);
-    // 
     
-    current_vals = accels + ';' + angles + ';' + angleVelos + ';' + forces[:-1];
+    
+    current_vals = accels + ';' + angles + ';' + angleVelos + ';' + forces;
     run_data_char.writeValue(current_vals);
 
     // TEST LOOP SPEED
