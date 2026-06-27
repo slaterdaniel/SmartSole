@@ -20,7 +20,7 @@ Madgwick filter;
 // Data Service
 static BLEService data_service(DATA_SERVICE_UUID);
 static BLEByteCharacteristic started_char(STARTED_CHAR_UUID, BLEWrite);
-static BLECharacteristic run_data_char(RUN_DATA_UUID, BLENotify, 64);
+static BLEStringCharacteristic run_data_char(RUN_DATA_UUID, BLENotify, 100);
 
 // Battery Service
 static BLEService battery_service(BATTERY_SERVICE_UUID);
@@ -33,7 +33,7 @@ static uint32_t count = 0;
 static uint32_t start = millis();
 
 float accelX, accelY, accelZ, angleVelX, angleVelY, angleVelZ, magX, magY, magZ;
-byte current_vals[20];
+String current_vals;
 
 void setup() {
     Serial.begin(115200);
@@ -101,9 +101,7 @@ void loop() {
 
     String angles = String(filter.getQ0()) + ',' + String(filter.getQ1()) + ',' + String(filter.getQ2()) + ',' + String(filter.getQ3());
     
-    current_vals
-    current_vals.angleVelocities = angleVelos;
-    current_vals.angles = angles;
+    current_vals = accels + ';' + angles + ';' + angleVelos;
 
     run_data_char.writeValue(current_vals);
 
