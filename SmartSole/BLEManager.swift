@@ -208,16 +208,7 @@ class BLEManager:
         let q2 = Float(str_angles[2])!
         let q3 = Float(str_angles[3])!
 
-        let imu_orientation = simd_quatf(ix: q1, iy: q2, iz: q3, r: q0)
-        
-        // Convert to Euler angles for cleaning
-        let raw_rotation = Rotation3D(imu_orientation)
-        var euler = raw_rotation.eulerAngles(order: .xyz)
-        euler.angles.x = -euler.angles.x
-        // euler.angles.z = 0
-
-        // Convert back to quaternion
-        let orientation = simd_quatf(Rotation3D(eulerAngles: euler))
+        let orientation = simd_quatf(ix: q1, iy: q2, iz: q3, r: q0)
         
         // Update with new values
         self.currentData = RunData(accels: String(values[0]), angles: orientation, angleAccels: String(values[2]))
