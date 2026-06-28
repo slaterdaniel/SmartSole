@@ -36,12 +36,11 @@ static bool centralConnected = false;
 static uint32_t count = 0;
 static uint32_t start = millis();
 
-float accelX, accelY, accelZ, angleVelX, angleVelY, angleVelZ, magX, magY, magZ;
 String current_vals;
 
 void setup() {
     Serial.begin(constants::baud);
-    filter.begin(30);
+    filter.begin(80);
     if (!BLE.begin()) {
         Serial.println("BLE.begin() failed");
         while (1);
@@ -110,96 +109,80 @@ void setup() {
     float pattern_start;    
     bool pattern_active = false;
 
-    // while (1) {
-    //     BLE.poll();
-    //     if (centralConnected) {
-    //         // listen for force distribution
-    //         // BREAK when start sequence is found:
-    //         // - front foot fully down (2sec)
-    //         // - back foot on toe (2sec)
+    while (1) {
+        BLE.poll();
+        if (centralConnected) {
+            // listen for force distribution
+            // BREAK when start sequence is found:
+            // - front foot fully down (2sec)
+            // - back foot on toe (2sec)
 
-    //         // delay(constants::loop_delay);
+            // delay(constants::loop_delay);
 
-    //         // String forces;
-    //         int8_t forces_list[constants::physical_channel_count];
-    //         for (uint8_t i=0; i < constants::physical_channel_count; i++) {
-    //             int8_t difference = mpr121.getChannelBaselineData(i) - mpr121.getChannelFilteredData(i);
-    //             // forces += String(difference) + ',';
-    //             forces_list[i] = difference;
-    //             Serial.print(forces_list[i]);
-    //             Serial.print("  ");
-    //         }
-    //         Serial.println();      
-    //         if ( // if pattern is recognized
-    //             forces_list[0]  < -constants::touch_threshold && // heel off the ground
-    //             forces_list[1]  < -constants::touch_threshold &&
-    //             forces_list[2]  < -constants::touch_threshold &&
-    //             forces_list[3]  < -constants::touch_threshold && 
+            // String forces;
+            int8_t forces_list[constants::physical_channel_count];
+            for (uint8_t i=0; i < constants::physical_channel_count; i++) {
+                int8_t difference = mpr121.getChannelBaselineData(i) - mpr121.getChannelFilteredData(i);
+                // forces += String(difference) + ',';
+                forces_list[i] = difference;
+                Serial.print(forces_list[i]);
+                Serial.print("  ");
+            }
+            Serial.println();      
+            if ( // if pattern is recognized
+                forces_list[0]  < -constants::touch_threshold && // heel off the ground
+                forces_list[1]  < -constants::touch_threshold &&
+                forces_list[2]  < -constants::touch_threshold &&
+                forces_list[3]  < -constants::touch_threshold && 
 
-    //             forces_list[8]  >  constants::touch_threshold && // toe on the ground
-    //             forces_list[9]  >  constants::touch_threshold &&
-    //             forces_list[10] >  constants::touch_threshold &&
-    //             forces_list[11] >  constants::touch_threshold
-    //         ) {
-    //             if (!pattern_active) { // if pattern just started -> mark starting time
-    //                 pattern_active = true;
-    //                 pattern_start = millis();
-    //             }
-    //             else if (millis() - pattern_start >= 2000) { // 2000 = 2 seconds
-    //                 break; // if pattern found and time > 2sec -> start loop()
-    //                 // Serial.println("BREAKING");
-    //             }
-    //         }
-    //         else { // if pattern is not recognized -> reset
-    //             pattern_active = false;
-    //         }
-    //     }
-    // }  
+                forces_list[8]  >  constants::touch_threshold && // toe on the ground
+                forces_list[9]  >  constants::touch_threshold &&
+                forces_list[10] >  constants::touch_threshold &&
+                forces_list[11] >  constants::touch_threshold
+            ) {
+                if (!pattern_active) { // if pattern just started -> mark starting time
+                    pattern_active = true;
+                    pattern_start = millis();
+                }
+                else if (millis() - pattern_start >= 2000) { // 2000 = 2 seconds
+                    break; // if pattern found and time > 2sec -> start loop()
+                    // Serial.println("BREAKING");
+                }
+            }
+            else { // if pattern is not recognized -> reset
+                pattern_active = false;
+            }
+        }
+    }  
 }
 
 void loop() {
-    // BLE.poll();
+    BLE.poll();
 
-    // // accelerations
-    // IMU.readAcceleration(accelX, accelY, accelZ);
+    float accelX, accelY, accelZ, angleVelX, angleVelY, angleVelZ, magX, magY, magZ;
+    IMU.readIMU(accelX, accelY, accelZ, angleVelX, angleVelY, angleVelZ);
 
-    // String accels = String(accelX) + ',' + String(accelY) + ',' + String(accelZ);
-
-    // // angle acceleration
-    // IMU.readGyroscope(angleVelX, angleVelY, angleVelZ);
-
-    // String angleVelos = String(angleVelX) + ',' + String(angleVelY) + ',' + String(angleVelZ);
-
-    // // angles
-    // // IMU.readMagneticField(magX, magY, magZ);
-
-    // filter.updateIMU(
-    //     angleVelX, angleVelY, angleVelZ,
-    //     accelX, accelY, accelZ//,
-    //     // magX, magY, magZ
-    // );
-
-    // String angles = String(filter.getQ0()) + ',' + String(filter.getQ1()) + ',' + String(filter.getQ2()) + ',' + String(filter.getQ3());
+    filter.updateIMU(
+        angleVelX, angleVelY, angleVelZ,
+        accelX, accelY, accelZ//,
+        //magX, magY, magZ
+    );
+    String angles = String(filter.getQ0()) + ',' + String(filter.getQ1()) + ',' + String(filter.getQ2()) + ',' + String(filter.getQ3());
+    String accels = String(accelX) + ',' + String(accelY) + ',' + String(accelZ);
+    String angleVelos = String(angleVelX) + ',' + String(angleVelY) + ',' + String(angleVelZ);
 
     // Force 
-    // int16_t differences[12];
-    // mpr121.getAllDifferences(differences);    
-
-    // String forces;
-    // for (uint8_t i=0; i<12; i++) {
-    //     forces += String(differences[i]);
-    //     forces += ',';
-    // }
-    // Serial.println();
+    int16_t differences[12];
+    mpr121.getAllDifferences(differences);    
 
     String forces;
     for (uint8_t i=0; i<12; i++) {
-        forces += String(mpr121.getChannelBaselineData(i) - mpr121.getChannelFilteredData(i));
+        forces += String(differences[i]);
         forces += ',';
     }
 
-    // current_vals = accels + ';' + angles + ';' + angleVelos + ';' + forces;
-    // run_data_char.writeValue(current_vals);
+    current_vals = accels + ';' + angles + ';' + angleVelos + ';' + forces;
+    run_data_char.writeValue(current_vals);
 
     // TEST LOOP SPEED
     count++;
@@ -209,3 +192,5 @@ void loop() {
         start = millis();
     }
 }
+
+
