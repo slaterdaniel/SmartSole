@@ -1,9 +1,7 @@
 #include <ArduinoBLE.h>
 #include "Arduino_BMI270_BMM150.h"
 #include <MadgwickAHRS.h>
-// #include <Arduino.h>
 #include <MPR121.h>
-// #include <Streaming.h>
 #include "Constants.h"
 
 Madgwick filter;
@@ -66,14 +64,14 @@ void setup() {
     BLE.setEventHandler(BLEConnected, [](BLEDevice central)
     {
         centralConnected = true;
-        Serial.println("Event: central connected");
+        Serial.println("BLE: Central connected");
     });
 
     // Disconnection from Central
     BLE.setEventHandler(BLEDisconnected, [](BLEDevice central)
     {
         centralConnected = false;
-        Serial.println("Event: central disconnected");
+        Serial.println("BLE: Central disconnected");
     });
 
     BLE.advertise();
@@ -104,6 +102,7 @@ void setup() {
     mpr121.startAllChannels(constants::proximity_mode);
 
     Serial.println("MPR121 setup done.");
+    Serial.println("Waiting for BLE connection...");
     
     // find when the rep starts
     float pattern_start;    
@@ -120,33 +119,27 @@ void setup() {
             // delay(constants::loop_delay);
 
             // String forces;
-            int8_t forces_list[constants::physical_channel_count];
-            for (uint8_t i=0; i < constants::physical_channel_count; i++) {
-                int8_t difference = mpr121.getChannelBaselineData(i) - mpr121.getChannelFilteredData(i);
-                // forces += String(difference) + ',';
-                forces_list[i] = difference;
-                Serial.print(forces_list[i]);
-                Serial.print("  ");
-            }
-            Serial.println();      
-            if ( // if pattern is recognized
-                forces_list[0]  < -constants::touch_threshold && // heel off the ground
-                forces_list[1]  < -constants::touch_threshold &&
-                forces_list[2]  < -constants::touch_threshold &&
-                forces_list[3]  < -constants::touch_threshold && 
+            int16_t differences[12];
+            mpr121.getAllDifferences(differences);  // Custom function for direct I2C communication for speed  
 
-                forces_list[8]  >  constants::touch_threshold && // toe on the ground
-                forces_list[9]  >  constants::touch_threshold &&
-                forces_list[10] >  constants::touch_threshold &&
-                forces_list[11] >  constants::touch_threshold
+            if ( // if pattern is recognized
+                // differences[0]  < -constants::touch_threshold && // heel off the ground
+                // differences[1]  < -constants::touch_threshold &&
+                // differences[2]  < -constants::touch_threshold &&
+                // differences[3]  < -constants::touch_threshold && 
+
+                differences[8]  >  constants::touch_threshold && // toe on the ground
+                differences[9]  >  constants::touch_threshold &&
+                differences[10] >  constants::touch_threshold &&
+                differences[11] >  constants::touch_threshold
             ) {
                 if (!pattern_active) { // if pattern just started -> mark starting time
                     pattern_active = true;
                     pattern_start = millis();
                 }
                 else if (millis() - pattern_start >= 2000) { // 2000 = 2 seconds
+                    Serial.println("Pattern Found: Breaking");
                     break; // if pattern found and time > 2sec -> start loop()
-                    // Serial.println("BREAKING");
                 }
             }
             else { // if pattern is not recognized -> reset
@@ -159,21 +152,22 @@ void setup() {
 void loop() {
     BLE.poll();
 
-    float accelX, accelY, accelZ, angleVelX, angleVelY, angleVelZ, magX, magY, magZ;
-    IMU.readIMU(accelX, accelY, accelZ, angleVelX, angleVelY, angleVelZ);
+    float accelX, accelY, accelZ, angleVelX, angleVelY, angleVelZ;
+    IMU.readIMU(accelX, accelY, accelZ, angleVelX, angleVelY, angleVelZ); // Custom function for direct I2C communication for speed
 
-    filter.updateIMU(
+    filter.updateIMU( // not using Magnetometer for speed, relative positioning, and drift problems
         angleVelX, angleVelY, angleVelZ,
         accelX, accelY, accelZ//,
         //magX, magY, magZ
-    );
+    ); 
+
     String angles = String(filter.getQ0()) + ',' + String(filter.getQ1()) + ',' + String(filter.getQ2()) + ',' + String(filter.getQ3());
     String accels = String(accelX) + ',' + String(accelY) + ',' + String(accelZ);
     String angleVelos = String(angleVelX) + ',' + String(angleVelY) + ',' + String(angleVelZ);
 
     // Force 
     int16_t differences[12];
-    mpr121.getAllDifferences(differences);    
+    mpr121.getAllDifferences(differences); // Custom function for direct I2C communication for speed  
 
     String forces;
     for (uint8_t i=0; i<12; i++) {
