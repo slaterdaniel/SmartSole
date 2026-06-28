@@ -21,18 +21,21 @@ MPR121 mpr121;
 
 // Data Service
 static BLEService data_service(DATA_SERVICE_UUID);
-static BLEByteCharacteristic started_char(STARTED_CHAR_UUID, BLEWrite);
+static BLEByteCharacteristic started_char(STARTED_CHAR_UUID, BLENotify);
 static BLEStringCharacteristic run_data_char(RUN_DATA_UUID, BLENotify, 100);
 
 // Battery Service
 static BLEService battery_service(BATTERY_SERVICE_UUID);
 static BLEFloatCharacteristic batteryLevel_charIndicate(BATTERY_PERCENTAGE_CHAR_UUID, BLEIndicate);
 
-// Connection Bool
+// Bools
 static bool centralConnected = false;
-
+static bool repStarted = false;
 static uint32_t count = 0;
 static uint32_t start = millis();
+
+static float pattern_start;    
+static bool pattern_active = false;
 
 String current_vals;
 
@@ -103,50 +106,7 @@ void setup() {
 
     Serial.println("MPR121 setup done.");
     Serial.println("Waiting for BLE connection...");
-    
-    // find when the rep starts
-    float pattern_start;    
-    bool pattern_active = false;
-
-    while (1) {
-        BLE.poll();
-        if (centralConnected) {
-            // listen for force distribution
-            // BREAK when start sequence is found:
-            // - front foot fully down (2sec)
-            // - back foot on toe (2sec)
-
-            // delay(constants::loop_delay);
-
-            // String forces;
-            int16_t differences[12];
-            mpr121.getAllDifferences(differences);  // Custom function for direct I2C communication for speed  
-
-            if ( // if pattern is recognized
-                // differences[0]  < -constants::touch_threshold && // heel off the ground
-                // differences[1]  < -constants::touch_threshold &&
-                // differences[2]  < -constants::touch_threshold &&
-                // differences[3]  < -constants::touch_threshold && 
-
-                differences[8]  >  constants::touch_threshold && // toe on the ground
-                differences[9]  >  constants::touch_threshold &&
-                differences[10] >  constants::touch_threshold &&
-                differences[11] >  constants::touch_threshold
-            ) {
-                if (!pattern_active) { // if pattern just started -> mark starting time
-                    pattern_active = true;
-                    pattern_start = millis();
-                }
-                else if (millis() - pattern_start >= 2000) { // 2000 = 2 seconds
-                    Serial.println("Pattern Found: Breaking");
-                    break; // if pattern found and time > 2sec -> start loop()
-                }
-            }
-            else { // if pattern is not recognized -> reset
-                pattern_active = false;
-            }
-        }
-    }  
+    while (!centralConnected) { BLE.poll(); }
 }
 
 void loop() {
@@ -178,13 +138,40 @@ void loop() {
     current_vals = accels + ';' + angles + ';' + angleVelos + ';' + forces;
     run_data_char.writeValue(current_vals);
 
-    // TEST LOOP SPEED
-    count++;
-    if (millis() - start >= 1000) {
-        Serial.println(count);
-        count = 0;
-        start = millis();
+    if (!repStarted) {
+        if ( // if pattern is recognized
+            // differences[0]  < -constants::touch_threshold && // heel off the ground
+            // differences[1]  < -constants::touch_threshold &&
+            // differences[2]  < -constants::touch_threshold &&
+            // differences[3]  < -constants::touch_threshold && 
+
+            differences[8]  >  constants::touch_threshold && // toe on the ground
+            differences[9]  >  constants::touch_threshold &&
+            differences[10] >  constants::touch_threshold &&
+            differences[11] >  constants::touch_threshold
+        ) {
+            if (!pattern_active) { // if pattern just started -> mark starting time
+                pattern_active = true;
+                pattern_start = millis();
+            }
+            else if (millis() - pattern_start >= 2000) { // 2000 = 2 seconds
+                Serial.println("Pattern Found: Rep Starting");
+                started_char.writeValue(0b1); // notify that the rep has started
+                repStarted = true;
+            }
+        }
+        else { // if pattern is not recognized -> reset
+            pattern_active = false;
+        }
     }
+
+    // TEST LOOP SPEED
+    // count++;
+    // if (millis() - start >= 1000) {
+    //     Serial.println(count);
+    //     count = 0;
+    //     start = millis();
+    // }
 }
 
 

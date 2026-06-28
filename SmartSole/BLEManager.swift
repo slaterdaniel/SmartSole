@@ -25,7 +25,7 @@ class BLEManager:
     @Published var currentData: RunData = RunData(accels: "Connect Device",
                                               angles: simd_quatf(),
                                               angleAccels: "Connect Device")
-    
+    private var repStarted: Bool = false
     private var manager: CBCentralManager!
     private var targetDeviceNames: [String]? = nil
 
@@ -170,8 +170,12 @@ class BLEManager:
             print("Value Update Error:", error)
             return
         }
-        if characteristic.uuid.uuidString.prefix(8) == "C7304342" {
+        let id = characteristic.uuid.uuidString.prefix(8)
+        if id == "C7304342" {
             handleData(characteristic.value)
+        }
+        else if id == "C7304341" {
+            repStarted = true
         }
     }
     
@@ -212,7 +216,12 @@ class BLEManager:
         
         // Update with new values
         self.currentData = RunData(accels: String(values[0]), angles: orientation, angleAccels: String(values[2]))
-        self.allData.append(self.currentData)
+        
+        // Only save data if rep has started
+        if repStarted {
+            print("Saving Data")
+            self.allData.append(self.currentData)
+        }
     }
 }
 
