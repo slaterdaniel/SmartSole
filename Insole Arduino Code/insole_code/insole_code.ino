@@ -130,7 +130,7 @@ void loop() {
     mpr121.getAllDifferences(differences); // Custom function for direct I2C communication for speed  
 
     String forces;
-    for (uint8_t i=0; i<12; i++) {
+    for (uint8_t i=0; i<constants::physical_channel_count; i++) {
         forces += String(differences[i]);
         forces += ',';
     }

@@ -26,7 +26,7 @@ const uint8_t channel = 0;
 const uint8_t physical_channel_count = 12;
 const MPR121::ProximityMode proximity_mode = MPR121::COMBINE_CHANNELS_0_TO_1;
 
-const uint8_t touch_threshold = 8; // was 40
+const uint8_t touch_threshold = 16; // was 40
 const uint8_t release_threshold = 20;
 const uint8_t touch_debounce = 1;
 const uint8_t release_debounce = 1;
