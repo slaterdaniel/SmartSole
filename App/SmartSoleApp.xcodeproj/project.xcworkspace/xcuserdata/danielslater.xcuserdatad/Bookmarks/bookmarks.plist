@@ -42,8 +42,8 @@
 </string>
 				<key>trailing</key>
 				<string>    @Published var currentData: RunData = RunData(accels: "Connect Device",
-                                              angles: simd_quatf(),
-                                              angleAccels: "Connect Device")
+                                                  angles: simd_quatf(),
+                                                  angleAccels: "Connect Device",
 </string>
 			</dict>
 			<key>type</key>
@@ -57,13 +57,13 @@
 					<key>EndingColumnNumber</key>
 					<string>0</string>
 					<key>EndingLineNumber</key>
-					<string>241</string>
+					<string>246</string>
 					<key>StartingColumnNumber</key>
 					<string>0</string>
 					<key>StartingLineNumber</key>
-					<string>240</string>
+					<string>245</string>
 					<key>Timestamp</key>
-					<string>804360721.5488141</string>
+					<string>804890819.069404</string>
 				</dict>
 				<key>rebasable-url</key>
 				<dict>
@@ -102,13 +102,13 @@ struct AllDeviceScannerHomepage: View {
 					<key>EndingColumnNumber</key>
 					<string>5</string>
 					<key>EndingLineNumber</key>
-					<string>25</string>
+					<string>32</string>
 					<key>StartingColumnNumber</key>
-					<string>5</string>
+					<string>0</string>
 					<key>StartingLineNumber</key>
-					<string>25</string>
+					<string>32</string>
 					<key>Timestamp</key>
-					<string>804049662.3422149</string>
+					<string>804899917.463843</string>
 				</dict>
 				<key>rebasable-url</key>
 				<dict>
@@ -124,11 +124,11 @@ struct AllDeviceScannerHomepage: View {
 			<key>text-context</key>
 			<dict>
 				<key>focused</key>
-				<string></string>
+				<string>    }</string>
 				<key>leading</key>
 				<string>            printTree(child, depth: depth + 1)
         }
-    }</string>
+</string>
 				<key>trailing</key>
 				<string>
     
