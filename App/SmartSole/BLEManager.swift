@@ -23,8 +23,10 @@ class BLEManager:
     @Published var connectedDevices: [Device] = []
     @Published var allData: [RunData] = []
     @Published var currentData: RunData = RunData(accels: "Connect Device",
-                                              angles: simd_quatf(),
-                                              angleAccels: "Connect Device")
+                                                  angles: simd_quatf(),
+                                                  angleAccels: "Connect Device",
+                                                  forces: []
+    )
     private var repStarted: Bool = false
     private var manager: CBCentralManager!
     private var targetDeviceNames: [String]? = nil
@@ -213,13 +215,15 @@ class BLEManager:
         let q3 = Float(str_angles[3])!
 
         let orientation = simd_quatf(ix: q1, iy: q2, iz: q3, r: q0)
+        let forces = values[3].split(separator: ",").map { Float($0) }
+        
         
         // Update with new values
-        self.currentData = RunData(accels: String(values[0]), angles: orientation, angleAccels: String(values[2]))
+        self.currentData = RunData(accels: String(values[0]), angles: orientation, angleAccels: String(values[2]), forces: forces)
         
         // Only save data if rep has started
         if repStarted {
-            print("Saving Data")
+//            print("Saving Data")
             self.allData.append(self.currentData)
         }
     }
@@ -235,6 +239,7 @@ struct RunData {
     let accels: String
     let angles: simd_quatf
     let angleAccels: String
+    let forces: [Float?]
 }
 
 struct AllDeviceScannerHomepage: View {
