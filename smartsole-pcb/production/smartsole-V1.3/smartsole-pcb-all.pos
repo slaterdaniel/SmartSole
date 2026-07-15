@@ -1,0 +1,45 @@
+### Footprint positions - created on 2026-07-15T17:28:55 ###
+### Printed by KiCad version 10.0.4
+## Unit = mm, Angle = deg.
+## Side : All
+# Ref     Val                         Package                                         PosX       PosY       Rot  Side
++3.3V1    Conn_01x01                  TestPoint_THTPad_1.0x1.0mm_Drill0.5mm       126.5904   -73.3532    0.0000  top
+BAT_IN1   Conn_01x01                  TestPoint_THTPad_1.0x1.0mm_Drill0.5mm       144.0000   -88.0000  180.0000  top
+C1        CL10A106MQ8NNNC             C0603                                       144.6048   -84.8460  -90.0000  top
+C2        CL10A105KO8NNNC             C0603                                       142.0961   -83.5598  180.0000  top
+C3        CT41G-0805-2X1-50V-0.1μF-M  C0805                                       142.7339   -76.9500  180.0000  top
+C4        CT41G-0805-2X1-50V-0.1μF-M  C0805                                       142.7339   -78.4500    0.0000  top
+C5        CT41G-0805-2X1-50V-0.1μF-M  C0805                                       142.7339   -79.9500    0.0000  top
+C6        CT41G-0805-2X1-50V-0.1μF-M  C0805                                       137.0000   -88.2980  180.0000  top
+C7        CT41G-0805-2X1-50V-0.1μF-M  C0805                                       136.9737   -89.8653  180.0000  top
+C8        CT41G-0805-2X1-50V-0.1μF-M  C0805                                       128.5000   -87.0000    0.0000  top
+ELE0      Conn_01x01                  TestPoint_THTPad_1.0x1.0mm_Drill0.5mm       124.5396   -82.9202  180.0000  top
+ELE1      Conn_01x01                  TestPoint_THTPad_1.0x1.0mm_Drill0.5mm       124.5672   -84.9797  180.0000  top
+ELE2      Conn_01x01                  TestPoint_THTPad_1.0x1.0mm_Drill0.5mm       124.5626   -87.0000  180.0000  top
+ELE3      Conn_01x01                  TestPoint_THTPad_1.0x1.0mm_Drill0.5mm       124.5595   -89.0136  180.0000  top
+ELE4      Conn_01x01                  TestPoint_THTPad_1.0x1.0mm_Drill0.5mm       124.5436   -91.0330  180.0000  top
+ELE5      Conn_01x01                  TestPoint_THTPad_1.0x1.0mm_Drill0.5mm       124.5474   -93.0414  180.0000  top
+ELE6      Conn_01x01                  TestPoint_THTPad_1.0x1.0mm_Drill0.5mm       135.8111   -93.5229  180.0000  top
+ELE7      Conn_01x01                  TestPoint_THTPad_1.0x1.0mm_Drill0.5mm       137.8174   -93.5395  180.0000  top
+ELE8      Conn_01x01                  TestPoint_THTPad_1.0x1.0mm_Drill0.5mm       139.8569   -93.5395  180.0000  top
+ELE9      Conn_01x01                  TestPoint_THTPad_1.0x1.0mm_Drill0.5mm       141.8799   -93.5395  180.0000  top
+ELE10     Conn_01x01                  TestPoint_THTPad_1.0x1.0mm_Drill0.5mm       144.0000   -92.0000  180.0000  top
+ELE11     Conn_01x01                  TestPoint_THTPad_1.0x1.0mm_Drill0.5mm       124.5420   -80.9124  180.0000  top
+GND1      Conn_01x01                  TestPoint_THTPad_1.0x1.0mm_Drill0.5mm       128.6053   -73.3532    0.0000  top
+GND2      Conn_01x01                  TestPoint_THTPad_1.0x1.0mm_Drill0.5mm       144.0000   -90.0000  180.0000  top
+R1        3.6kΩ                       R0603                                       140.5019   -89.8241  180.0000  top
+R2        0805W8F4701T5E              R0805                                       128.8515   -79.6335  180.0000  top
+R3        1kΩ                         R0603                                       140.5019   -90.8915  180.0000  top
+R4        0805W8F7502T5E              R0805                                       128.5124   -88.8156  180.0000  top
+R5        10k                         R0805                                       140.7462   -88.5000  180.0000  top
+R6        0805W8F4701T5E              R0805                                       128.8515   -81.2205  180.0000  top
+R7        0805W8F4701T5E              R0805                                       128.8614   -78.0563  180.0000  top
+R8        10k                         R0805                                       128.8326   -76.2646    0.0000  top
+RESET1    Conn_01x01                  TestPoint_THTPad_1.0x1.0mm_Drill0.5mm       124.5681   -75.3506    0.0000  top
+SWDCLK1   Conn_01x01                  TestPoint_THTPad_1.0x1.0mm_Drill0.5mm       124.5635   -77.3620    0.0000  top
+SWDIO1    Conn_01x01                  TestPoint_THTPad_1.0x1.0mm_Drill0.5mm       124.5929   -73.3298    0.0000  top
+U1        NINA-B306-00B               LGA-60_L15.0-W10.0-NINA-B406-00B            135.7339   -79.9863  180.0000  top
+U2        BQ25185DLHR                 WSON-10_L2.2-W2.0-P0.40-BL-EP_TI_DLH0010A   143.0000   -85.5500  180.0000  top
+U3        BMI270                      LGA-14_L3.0-W2.5-P0.50-BR                   128.6912   -84.4083  180.0000  top
+U4        MPR121QR2                   QFN-20_L3.0-W3.0-P0.40-BL                   132.2391   -91.3455  180.0000  top
+## End
