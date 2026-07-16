@@ -524,7 +524,7 @@
     "last_paths": {
       "idf": "",
       "netlist": "",
-      "plot": "",
+      "plot": "production/smartsole-V1.3/",
       "specctra_dsn": "",
       "vrml": ""
     },

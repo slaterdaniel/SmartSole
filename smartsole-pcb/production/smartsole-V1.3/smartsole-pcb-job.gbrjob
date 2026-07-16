@@ -5,7 +5,7 @@
       "Application": "Pcbnew",
       "Version": "10.0.4"
     },
-    "CreationDate": "2026-07-15T17:27:56-04:00"
+    "CreationDate": "2026-07-15T20:28:10-04:00"
   },
   "GeneralSpecs": {
     "ProjectId": {
@@ -18,7 +18,7 @@
       "Y": 22.55
     },
     "LayerNumber": 2,
-    "BoardThickness": 0.8,
+    "BoardThickness": 1.6,
     "Finish": "None"
   },
   "DesignRules": [
@@ -51,16 +51,6 @@
     {
       "Path": "smartsole-pcb-B_Paste.gbr",
       "FileFunction": "SolderPaste,Bot",
-      "FilePolarity": "Positive"
-    },
-    {
-      "Path": "smartsole-pcb-F_Silkscreen.gbr",
-      "FileFunction": "Legend,Top",
-      "FilePolarity": "Positive"
-    },
-    {
-      "Path": "smartsole-pcb-B_Silkscreen.gbr",
-      "FileFunction": "Legend,Bot",
       "FilePolarity": "Positive"
     },
     {
@@ -100,7 +90,7 @@
     },
     {
       "Type": "Dielectric",
-      "Thickness": 0.71,
+      "Thickness": 1.51,
       "Material": "FR4",
       "Name": "F.Cu/B.Cu",
       "Notes": "Type: dielectric layer 1 (from F.Cu to B.Cu)"

@@ -3,7 +3,7 @@
 	(generator "pcbnew")
 	(generator_version "10.0")
 	(general
-		(thickness 0.8)
+		(thickness 1.6)
 		(legacy_teardrops no)
 	)
 	(paper "A4")
@@ -51,7 +51,7 @@
 			)
 			(layer "dielectric 1"
 				(type "core")
-				(thickness 0.71)
+				(thickness 1.51)
 				(material "FR4")
 				(epsilon_r 4.5)
 				(loss_tangent 0.02)
@@ -91,7 +91,7 @@
 		(filling no)
 		(zone_defaults)
 		(pcbplotparams
-			(layerselection 0x00000000_00000000_55555555_5755f5ff)
+			(layerselection 0x00000000_00000000_55555555_5755f55f)
 			(plot_on_all_layers_selection 0x00000000_00000000_00000000_00000000)
 			(disableapertmacros no)
 			(usegerberextensions no)
@@ -124,7 +124,7 @@
 			(mirror no)
 			(drillshape 0)
 			(scaleselection 1)
-			(outputdirectory "")
+			(outputdirectory "production/smartsole-V1.3/")
 		)
 	)
 	(footprint "TestPoint:TestPoint_THTPad_1.0x1.0mm_Drill0.5mm"
@@ -7578,14 +7578,6 @@
 		(path "/a6ead1e8-4848-4164-8eb0-8d31327f4a56")
 		(sheetname "/")
 		(sheetfile "smartsole-pcb.kicad_sch")
-		(units
-			(unit
-				(name "A")
-				(pins "1" "2" "3" "4" "5" "6" "7" "8" "9" "10" "20" "19" "18" "17" "16"
-					"15" "14" "13" "12" "11"
-				)
-			)
-		)
 		(attr smd)
 		(duplicate_pad_numbers_are_jumpers no)
 		(fp_line
@@ -7759,6 +7751,7 @@
 			(net "/IRQ")
 			(pinfunction "~{IRQ}_1")
 			(pintype "unspecified")
+			(solder_paste_margin -0.02)
 			(thermal_bridge_angle 90)
 			(options
 				(clearance outline)
@@ -7783,6 +7776,7 @@
 			(net "/SCL")
 			(pinfunction "SCL_2")
 			(pintype "unspecified")
+			(solder_paste_margin -0.015)
 			(uuid "223b3875-4d5a-40cf-9595-5dfd47c6124a")
 		)
 		(pad "3" smd rect
@@ -7792,6 +7786,7 @@
 			(net "/SDA")
 			(pinfunction "SDA_3")
 			(pintype "unspecified")
+			(solder_paste_margin -0.015)
 			(uuid "182cd36c-9e49-4dea-9056-d46f55532633")
 		)
 		(pad "4" smd rect
@@ -7801,6 +7796,7 @@
 			(net "GND")
 			(pinfunction "ADDR_4")
 			(pintype "unspecified")
+			(solder_paste_margin -0.015)
 			(uuid "1cb73666-2191-493d-86f1-b0d4a2a62f1a")
 		)
 		(pad "5" smd custom
@@ -7810,6 +7806,7 @@
 			(net "/VREG")
 			(pinfunction "VREG_5")
 			(pintype "unspecified")
+			(solder_paste_margin -0.02)
 			(thermal_bridge_angle 90)
 			(options
 				(clearance outline)
@@ -7833,6 +7830,7 @@
 			(net "GND")
 			(pinfunction "VSS_6")
 			(pintype "unspecified")
+			(solder_paste_margin -0.015)
 			(thermal_bridge_angle 90)
 			(options
 				(clearance outline)
@@ -7857,6 +7855,7 @@
 			(net "/REXT")
 			(pinfunction "REXT_7")
 			(pintype "unspecified")
+			(solder_paste_margin -0.015)
 			(uuid "1061729e-4ac6-4966-ae76-037d7becc7f8")
 		)
 		(pad "8" smd rect
@@ -7866,6 +7865,7 @@
 			(net "Net-(ELE0-Pin_1)")
 			(pinfunction "ELE0_8")
 			(pintype "unspecified")
+			(solder_paste_margin -0.015)
 			(uuid "5eac6458-5b29-4a8d-88b9-0b4ae9bb9ce7")
 		)
 		(pad "9" smd rect
@@ -7875,6 +7875,7 @@
 			(net "Net-(ELE1-Pin_1)")
 			(pinfunction "ELE1_9")
 			(pintype "unspecified")
+			(solder_paste_margin -0.015)
 			(uuid "3fb7e291-faee-48b7-8d4c-1eb997a6c75d")
 		)
 		(pad "10" smd custom
@@ -7884,6 +7885,7 @@
 			(net "Net-(ELE2-Pin_1)")
 			(pinfunction "ELE2_10")
 			(pintype "unspecified")
+			(solder_paste_margin -0.02)
 			(thermal_bridge_angle 90)
 			(options
 				(clearance outline)
@@ -7907,6 +7909,7 @@
 			(net "Net-(ELE3-Pin_1)")
 			(pinfunction "ELE3_11")
 			(pintype "unspecified")
+			(solder_paste_margin -0.02)
 			(thermal_bridge_angle 90)
 			(options
 				(clearance outline)
@@ -7930,6 +7933,7 @@
 			(net "Net-(ELE4-Pin_1)")
 			(pinfunction "ELE4_12")
 			(pintype "unspecified")
+			(solder_paste_margin -0.015)
 			(uuid "5dc73f85-7881-4b43-abb8-90781b8dd862")
 		)
 		(pad "13" smd rect
@@ -7939,6 +7943,7 @@
 			(net "Net-(ELE5-Pin_1)")
 			(pinfunction "ELE5_13")
 			(pintype "unspecified")
+			(solder_paste_margin -0.015)
 			(uuid "46b4a8b4-41e1-49b2-9228-de34f9224317")
 		)
 		(pad "14" smd rect
@@ -7948,6 +7953,7 @@
 			(net "Net-(ELE6-Pin_1)")
 			(pinfunction "ELE6_14")
 			(pintype "unspecified")
+			(solder_paste_margin -0.015)
 			(uuid "68340cc7-ce94-484c-b355-6dfa8255bcd6")
 		)
 		(pad "15" smd custom
@@ -7957,6 +7963,7 @@
 			(net "Net-(ELE7-Pin_1)")
 			(pinfunction "ELE7_15")
 			(pintype "unspecified")
+			(solder_paste_margin -0.02)
 			(thermal_bridge_angle 90)
 			(options
 				(clearance outline)
@@ -7981,6 +7988,7 @@
 			(net "Net-(ELE8-Pin_1)")
 			(pinfunction "ELE8_16")
 			(pintype "unspecified")
+			(solder_paste_margin -0.02)
 			(thermal_bridge_angle 90)
 			(options
 				(clearance outline)
@@ -8005,6 +8013,7 @@
 			(net "Net-(ELE9-Pin_1)")
 			(pinfunction "ELE9_17")
 			(pintype "unspecified")
+			(solder_paste_margin -0.015)
 			(uuid "cef262e0-d078-413c-8b70-fb4996aed655")
 		)
 		(pad "18" smd rect
@@ -8014,6 +8023,7 @@
 			(net "Net-(ELE10-Pin_1)")
 			(pinfunction "ELE10_18")
 			(pintype "unspecified")
+			(solder_paste_margin -0.015)
 			(uuid "858db47a-a6c0-49cc-9dbe-fc0f7ed0d211")
 		)
 		(pad "19" smd rect
@@ -8023,6 +8033,7 @@
 			(net "Net-(ELE11-Pin_1)")
 			(pinfunction "ELE11_19")
 			(pintype "unspecified")
+			(solder_paste_margin -0.015)
 			(uuid "b575382a-41a7-4103-958a-ac54435d0f8b")
 		)
 		(pad "20" smd custom
@@ -8032,6 +8043,7 @@
 			(net "/+3.3V")
 			(pinfunction "VDD_20")
 			(pintype "unspecified")
+			(solder_paste_margin -0.02)
 			(thermal_bridge_angle 90)
 			(options
 				(clearance outline)
