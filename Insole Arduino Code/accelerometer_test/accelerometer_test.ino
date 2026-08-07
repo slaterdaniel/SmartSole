@@ -1,4 +1,4 @@
-#include "Arduino_BMI270_BMM150.h"
+#include "BoschSensorClass.h"
 #include <string>
 
 void setup()
